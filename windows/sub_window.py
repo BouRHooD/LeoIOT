@@ -21,7 +21,7 @@ def get_nodes(name_class):
                 return select_nodes
 
 
-class CalculatorSubWindow(NodeEditorWidget):
+class IOTSubWindow(NodeEditorWidget):
     def __init__(self):
         super().__init__()
         self.setAttribute(Qt.WA_DeleteOnClose)
@@ -110,11 +110,23 @@ class CalculatorSubWindow(NodeEditorWidget):
                     node.scene = self.scene
                 else:
                     node = get_class_from_opcode(op_code, some_nodes)(self.scene)
-                node.setPos(scene_position.x(), scene_position.y())
+
+                # Left corner
+                if "CalcNode_some_thing_in" in node_type:
+                    views = self.scene.grScene.views()
+                    scene_position = views[0].mapFromScene(mouse_position)
+                    scene_width = views[0].width()
+                    x = scene_position.x()
+                    node.setPos(scene_position.x(), scene_position.y())
+                # Right corner
+                elif "CalcNode_some_thing_out" in node_type:
+                    node.setPos(scene_position.x(), scene_position.y())
+                else:
+                    node.setPos(scene_position.x(), scene_position.y())
 
                 self.scene.history.storeHistory("Created node %s" % node.__class__.__name__)
-            except Exception as e: dumpException(e)
-
+            except Exception as ex:
+                print(ex)
 
             event.setDropAction(Qt.MoveAction)
             event.accept()

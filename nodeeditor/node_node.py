@@ -8,7 +8,7 @@ DEBUG = False
 
 class Node(Serializable):
 
-    def __init__(self, scene, title="Undefined Node", obj_title="Undefined", inputs=[], outputs=[]):
+    def __init__(self, scene, title="Undefined Node", obj_title="Undefined", obj_port=None, inputs=[], outputs=[]):
         super().__init__()
         self._title = title
         self._obj_title = obj_title
@@ -17,7 +17,7 @@ class Node(Serializable):
         self.initInnerClasses()
         self.initSettings()
 
-        self.title(title, obj_title)
+        self.title(title, obj_title, obj_port)
 
         # Подключение модуля serial (pyserial)
         import serial
@@ -103,10 +103,18 @@ class Node(Serializable):
     def setPos(self, x, y):
         self.grNode.setPos(x, y)
 
-    def title(self, value, value2):
+    def setAlligment(self, str):
+        if str == "Left":
+            self.grNode.setPos(LEFT_CENTER)
+
+    def title(self, value, value2, value3):
         self._title = value
         self._obj_title = value2
-        self.grNode.title(self._title, self._obj_title)
+        self._obj_port = value3
+        if self._obj_port is not None:
+            self.grNode.title(self._title, self._obj_title, self._obj_port)
+        else:
+            self.grNode.title(self._title, self._obj_title)
 
 
     def getSocketPosition(self, index, position, num_out_of=1):

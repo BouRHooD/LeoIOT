@@ -55,18 +55,18 @@ class QDMDragListbox(QListWidget):
         keys.sort()
         for key in keys:
             node = get_class_from_opcode(key, self.SOME_NODES)
-            self.addMyItem(node.op_title, node.icon, node.op_code)
+            self.addMyItem(name=node.op_title, icon=node.icon, op_code=node.op_code)
 
-    def addMyItem(self, name, icon=None, op_code=0, obj_title="T0", thing_in=True):
+    def addMyItem(self, name, icon=None, op_code=0, obj_title="T0", obj_port=None, thing_in=True):
         if op_code not in self.SOME_NODES:
             from nodes.some_thing import CalcNode_some_thing_in
             from nodes.some_thing import CalcNode_some_thing_out
             if thing_in:
                 new_class = CalcNode_some_thing_in(scene=None, icon=str(icon), op_code=int(op_code), op_title=str(name),
-                                                obj_title=str(obj_title))
+                                                   obj_title=str(obj_title), obj_port=str(obj_port))
             else:
                 new_class = CalcNode_some_thing_out(scene=None, icon=str(icon), op_code=int(op_code), op_title=str(name),
-                                                obj_title=str(obj_title))
+                                                    obj_title=str(obj_title), obj_port=str(obj_port))
             new_register_node = register_node(int(op_code), self.SOME_NODES, new_class)
             self.SOME_NODES.update({int(op_code): new_register_node})
 

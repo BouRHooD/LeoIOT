@@ -85,10 +85,14 @@ class QDMGraphicsNode(QGraphicsItem):
             self._last_selected_state = self.isSelected()
             self.onSelected()
 
-    def title(self, value, value2):
+    def title(self, value, value2, value3=None):
         self._title = value
         self._title_obj = value2
-        self.title_item.setPlainText(self._title + f' ({str(self._title_obj)})')
+        self._title_obj_port = value3
+        if self._title_obj_port is None or self._title_obj_port == "None":
+            self.title_item.setPlainText(self._title + f' ({str(self._title_obj)})')
+        else:
+            self.title_item.setPlainText(self._title + f' ({str(self._title_obj)})' + f' ({str(self._title_obj_port)})')
         # self.object_item.setPlainText('(' + str(self._title_obj)+ ')')
 
     def boundingRect(self):

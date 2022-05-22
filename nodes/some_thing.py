@@ -37,15 +37,17 @@ class CalcNode_some_thing_in(CalcNode):
     op_code = dict_OP_NODES.get('OP_NODE_some_thing_in')
     op_title = "Вещь"
     obj_title = "T1"
+    obj_port = None
     content_label_objname = "calc_node_some_thing_in"
     checked_send = False
 
     # Инициализируем экземпляр класса
-    def __init__(self, scene, icon=".", op_code=dict_OP_NODES.get('OP_NODE_some_thing_in'), op_title="Вещь", obj_title="T0"):
+    def __init__(self, scene, icon=".", op_code=dict_OP_NODES.get('OP_NODE_some_thing_in'), op_title="Вещь", obj_title="T0", obj_port=None):
         self.icon = icon
         self.op_code = op_code
         self.op_title = op_title
         self.obj_title = obj_title
+        self.obj_port = obj_port
         super().__init__(scene, inputs=[], outputs=[3])
         self.eval()
 
@@ -84,15 +86,17 @@ class CalcNode_some_thing_out(CalcNode):
     op_code = dict_OP_NODES.get("OP_NODE_some_thing_out")
     op_title = "Вещь"
     obj_title = "T1"
+    obj_port = None
     content_label_objname = "calc_node_some_thing_out"
     checked_send = False
 
     def __init__(self, scene, icon=".", op_code=dict_OP_NODES.get('OP_NODE_some_thing_out'), op_title="Вещь",
-                 obj_title="T0"):
+                 obj_title="T0", obj_port=None):
         self.icon = icon
         self.op_code = op_code
         self.op_title = op_title
         self.obj_title = obj_title
+        self.obj_port = obj_port
         super().__init__(scene, inputs=[1], outputs=[])
 
     def initInnerClasses(self):

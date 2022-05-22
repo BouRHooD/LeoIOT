@@ -12,7 +12,7 @@ from multiprocessing.dummy import Pool
 
 from nodeeditor.utils import loadStylesheets
 from nodeeditor.node_editor_window import NodeEditorWindow
-from windows.sub_window import CalculatorSubWindow
+from windows.sub_window import IOTSubWindow
 from widgets.drag_listbox import QDMDragListbox, TWListbox
 from nodeeditor.utils import dumpException, pp
 from settings.calc_conf import *
@@ -121,7 +121,7 @@ class MainIOTWindow(NodeEditorWindow):
                         self.mdiArea.setActiveSubWindow(existing)
                     else:
                         # we need to create new subWindow and open the file
-                        nodeeditor = CalculatorSubWindow()
+                        nodeeditor = IOTSubWindow()
                         if nodeeditor.fileLoad(fname):
                             self.statusBar().showMessage("File %s loaded" % fname, 5000)
                             nodeeditor.setTitle()
@@ -183,8 +183,6 @@ class MainIOTWindow(NodeEditorWindow):
             self.actUndo.setEnabled(hasMdiChild and active.canUndo())
             self.actRedo.setEnabled(hasMdiChild and active.canRedo())
         except Exception as e: dumpException(e)
-
-
 
     def updateWindowMenu(self):
         self.windowMenu.clear()
@@ -272,10 +270,10 @@ class MainIOTWindow(NodeEditorWindow):
         # "Узлы подключенных вещей"
         self.thingListWidget = QDMDragListbox(SOME_NODES=THING_NODES, checkable=True)
         self.thingListWidget.itemClicked.connect(self.state_change)
-        self.thingListWidget.addMyItem('Датчик освещенности', self.DIR_ICONS + 'icon-brightness-1758514.png', 11, "T0")
-        self.thingListWidget.addMyItem('Датчик температуры', self.DIR_ICONS + 'icon-temperature-sensor-1485456.png', 12, "T1")
-        self.thingListWidget.addMyItem('Лампа', self.DIR_ICONS + 'icon-lightbulb-673876.png', 13, "T2", False)
-        self.thingListWidget.addMyItem('Вентилятор', self.DIR_ICONS + 'icon-fan-877921.png', 14, "T3", False)
+        self.thingListWidget.addMyItem(name='Датчик освещенности', icon=self.DIR_ICONS + 'icon-brightness-1758514.png', op_code=11, obj_title="T0")
+        self.thingListWidget.addMyItem(name='Датчик температуры',  icon=self.DIR_ICONS + 'icon-temperature-sensor-1485456.png', op_code=12, obj_title="T1")
+        self.thingListWidget.addMyItem(name='Лампа',  icon=self.DIR_ICONS + 'icon-lightbulb-673876.png', op_code=13, obj_title="T2", thing_in=False)
+        self.thingListWidget.addMyItem(name='Вентилятор',  icon=self.DIR_ICONS + 'icon-fan-877921.png', op_code=14, obj_title="T3", thing_in=False)
 
         self.ON_OFFsendButton_tw = QtWidgets.QPushButton("Включить отправку на ThingWorx", clicked=self.ON_OFFsendDataTW)
         self.addButton = QtWidgets.QPushButton(text='Добавить вещь', clicked=self.addThing_element)
@@ -434,11 +432,11 @@ class MainIOTWindow(NodeEditorWindow):
         obj_name = "T" + str(elements_count)
 
         self.thing_window = thing_window(self, name_thing=name, obj_name=obj_name, elements_count=elements_count)
-        self.thing_window.login_data[str, str, str, str, bool].connect(self.addThing_element_from_thing_window)
+        self.thing_window.login_data[str, str, str, str, str, bool].connect(self.addThing_element_from_thing_window)
         self.thing_window.show()
 
-    def addThing_element_from_thing_window(self, name_thing, icon, elements_count, obj_name, bool):
-        self.thingListWidget.addMyItem(name_thing, icon, elements_count, obj_name, bool)
+    def addThing_element_from_thing_window(self, name_thing, icon, elements_count, obj_name, obj_port, obj_bool):
+        self.thingListWidget.addMyItem(name=name_thing, icon=icon, op_code=elements_count, obj_title=obj_name, obj_port=obj_port, thing_in=obj_bool)
 
     def deleteThing_element(self):
         select_item = self.thingListWidget.currentRow()
@@ -467,7 +465,7 @@ class MainIOTWindow(NodeEditorWindow):
         self.statusBar().showMessage("Программа готова к работе")
 
     def createMdiChild(self, child_widget=None):
-        nodeeditor = child_widget if child_widget is not None else CalculatorSubWindow()
+        nodeeditor = child_widget if child_widget is not None else IOTSubWindow()
         subwnd = self.mdiArea.addSubWindow(nodeeditor)
         subwnd.setWindowIcon(self.empty_icon)
         # nodeeditor.scene.addItemSelectedListener(self.updateEditMenu)

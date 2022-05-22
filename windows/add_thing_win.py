@@ -6,16 +6,18 @@ from PyQt5.QtCore import *
 
 
 class thing_window(QMainWindow):
-    login_data = pyqtSignal(str, str, str, str, bool)
+    login_data = pyqtSignal(str, str, str, str, str, bool)
     name_thing = "Вещь"
     DIR_MAIN = path.dirname(path.abspath(str(sys.modules['__main__'].__file__)))
     DIR_ICONS = DIR_MAIN + "\styles\icons" + "\\"
+    DIR_SETTINGS = DIR_MAIN + "\settings\\"
     icon = DIR_ICONS + "house-things.png"
+    obj_port = ""
     obj_name = "T"
     elements_count = 0
     state_type = True
 
-    def __init__(self, parent=None, title="Настройки новой вещи", name_thing="Вещь", obj_name = "T", elements_count=0):
+    def __init__(self, parent=None, title="Настройки новой вещи", name_thing="Вещь", obj_name="T", elements_count=0):
         super(thing_window, self).__init__(parent)
         print(self.icon)
         self.title = title
@@ -62,29 +64,112 @@ class thing_window(QMainWindow):
         self.obj_textEdit.setFixedSize(self.width(), 26)
         self.obj_textEdit.setText(self.obj_name)
 
+        self.combo_port_label = QLabel("Выбирите порт")
+        self.combo_port_label.setAlignment(Qt.AlignCenter)
+        self.combo_port = QComboBox(self)
+        self.combo_port.currentTextChanged.connect(self.select_port_change)
+        self.init_port_combo()
+
         self.saveButton = QPushButton('Сохранить найстройки', clicked=self.save_settings)
 
         grid = QGridLayout()
-        grid.setSpacing(9)
+        grid.setSpacing(11)
 
         # saveButton ячейка начинается с нулевой строки нулевой колонки, и занимает 1 строку и 1 колонку.
         grid.addWidget(self.combo_label, 0, 0, 1, 1)
         grid.addWidget(self.combo, 1, 0, 1, 1)
         grid.addWidget(self.combo_icon_label, 2, 0, 1, 1)
         grid.addWidget(self.combo_icon, 3, 0, 1, 1)
-        grid.addWidget(self.textEdit_label, 4, 0, 1, 1)
-        grid.addWidget(self.textEdit, 5, 0, 1, 1)
-        grid.addWidget(self.obj_textEdit_label, 6, 0, 1, 1)
-        grid.addWidget(self.obj_textEdit, 7, 0, 1, 1)
-        grid.addWidget(self.saveButton, 8, 0, 1, 1)
+        grid.addWidget(self.combo_port_label, 4, 0, 1, 1)
+        grid.addWidget(self.combo_port, 5, 0, 1, 1)
+        grid.addWidget(self.textEdit_label, 6, 0, 1, 1)
+        grid.addWidget(self.textEdit, 7, 0, 1, 1)
+        grid.addWidget(self.obj_textEdit_label, 8, 0, 1, 1)
+        grid.addWidget(self.obj_textEdit, 9, 0, 1, 1)
+        grid.addWidget(self.saveButton, 10, 0, 1, 1)
 
         self.main_widget = QWidget(self)
         self.main_widget.setLayout(grid)
         self.setCentralWidget(self.main_widget)
 
+    def select_port_change(self, str):
+        self.obj_port = str
+
+    def loadjsonDataSettingPorts(self):
+        try:
+            import json
+            with open(self.DIR_SETTINGS + 'used_ports.json.txt', "r") as f:
+                self.jsonDataSettingPorts  = json.load(f)
+                return self.jsonDataSettingPorts
+        except Exception as ex:
+            print(ex)
+
+    def init_port_combo(self):
+        try:
+            self.jsonDataSettingPorts = self.loadjsonDataSettingPorts()
+            self.flagErrorLoad = False
+
+            if self.combo.currentText() == "Входное значение":
+                self.combo_port.clear()                                                       # delete items of list
+
+                try:
+                    for in_port in self.jsonDataSettingPorts["in_ports"]:
+                        for port_name in in_port:
+                            for port_num in in_port[port_name]:
+                                icon = QIcon(self.DIR_ICONS + 'settings.png')
+                                low_port_name = str(port_name.lower())
+                                if low_port_name.__contains__("digital"):
+                                    icon = QIcon(self.DIR_ICONS + 'letter-d.png')
+                                if low_port_name.__contains__("analog"):
+                                    icon = QIcon(self.DIR_ICONS + 'a.png')
+                                self.combo_port.addItem(icon, port_name + "_" + port_num)
+                except Exception as ex:
+                    print(ex)
+                    self.flagErrorLoad = True
+
+                if self.jsonDataSettingPorts is None or self.flagErrorLoad:
+                    self.combo_port.addItem(QIcon(self.DIR_ICONS + 'house-things.png'), "GPIO_4")
+                    self.combo_port.addItem(QIcon(self.DIR_ICONS + 'house-things.png'), "GPIO_17")
+                    self.combo_port.addItem(QIcon(self.DIR_ICONS + 'house-things.png'), "GPIO_27")
+                    self.combo_port.addItem(QIcon(self.DIR_ICONS + 'house-things.png'), "GPIO_22")
+                    self.combo_port.addItem(QIcon(self.DIR_ICONS + 'house-things.png'), "GPIO_5")
+                    self.combo_port.addItem(QIcon(self.DIR_ICONS + 'house-things.png'), "GPIO_6")
+                    self.combo_port.addItem(QIcon(self.DIR_ICONS + 'house-things.png'), "GPIO_13")
+                    self.combo_port.addItem(QIcon(self.DIR_ICONS + 'house-things.png'), "GPIO_19")
+            elif self.combo.currentText() == "Выходное значение":
+                self.combo_port.clear()  # delete items of list
+
+                try:
+                    for in_port in self.jsonDataSettingPorts["out_ports"]:
+                        for port_name in in_port:
+                            for port_num in in_port[port_name]:
+                                icon = QIcon(self.DIR_ICONS + 'settings.png')
+                                low_port_name = str(port_name.lower())
+                                if low_port_name.__contains__("digital"):
+                                    icon = QIcon(self.DIR_ICONS + 'letter-d.png')
+                                if low_port_name.__contains__("analog"):
+                                    icon = QIcon(self.DIR_ICONS + 'a.png')
+                                self.combo_port.addItem(icon, port_name + "_" + port_num)
+                except:
+                    pass
+
+                if self.jsonDataSettingPorts is None or self.flagErrorLoad:
+                    self.combo_port.addItem(QIcon(self.DIR_ICONS + 'house-things.png'), "GPIO_18")
+                    self.combo_port.addItem(QIcon(self.DIR_ICONS + 'house-things.png'), "GPIO_23")
+                    self.combo_port.addItem(QIcon(self.DIR_ICONS + 'house-things.png'), "GPIO_24")
+                    self.combo_port.addItem(QIcon(self.DIR_ICONS + 'house-things.png'), "GPIO_25")
+                    self.combo_port.addItem(QIcon(self.DIR_ICONS + 'house-things.png'), "GPIO_12")
+                    self.combo_port.addItem(QIcon(self.DIR_ICONS + 'house-things.png'), "GPIO_16")
+                    self.combo_port.addItem(QIcon(self.DIR_ICONS + 'house-things.png'), "GPIO_20")
+                    self.combo_port.addItem(QIcon(self.DIR_ICONS + 'house-things.png'), "GPIO_21")
+        except:
+            pass
+
     def save_settings(self):
+        self.icon = self.DIR_ICONS + self.icon
+        print(self.icon)
         self.login_data.emit(str(self.name_thing), str(self.icon), str(self.elements_count), str(self.obj_name),
-                             bool(self.state_type))
+                             str(self.obj_port), bool(self.state_type))
         self.close()
 
     def state_type_change(self, str):
@@ -92,6 +177,9 @@ class thing_window(QMainWindow):
             self.state_type = True
         elif str == "Выходное значение":
             self.state_type = False
+
+        # Меняем значение в комбо боксе с портами
+        self.init_port_combo()
 
     def icon_change(self, str):
         self.icon = str
