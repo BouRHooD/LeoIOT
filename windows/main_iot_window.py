@@ -35,7 +35,6 @@ class MainIOTWindow(NodeEditorWindow):
 
         self.stylesheet_filename = self.DIR_CSS + "nodeeditor.qss"
         loadStylesheets(
-            self.DIR_CSS + "nodeeditor.qss",
             self.stylesheet_filename
         )
 
@@ -44,7 +43,6 @@ class MainIOTWindow(NodeEditorWindow):
         if DEBUG:
             print("Registered nodes:")
             pp(CALC_NODES)
-
 
         self.mdiArea = QMdiArea()
         self.mdiArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)

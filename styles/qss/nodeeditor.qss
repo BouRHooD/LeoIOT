@@ -35,6 +35,24 @@ QDMNodeContentWidget QLineEdit#calc_node_input {
   font-size: 28px;
 }
 
+QDMNodeContentWidget QLineEdit#calc_node_expression{
+  width: 185px;
+  height: 36px;
+  margin-top: 5px;
+  margin-left: 5px;
+  font-size: 28px;
+}
+
+QDMNodeContentWidget QLabel#calc_node_expression {
+  background: transparent;
+  height: 0px;
+  color: #373737;
+  font-size: 72px;
+  max-height: 49px;
+  min-height: 49px;
+  padding-left: 0px;
+}
+
 QDMNodeContentWidget QLineEdit#calc_node_some_thing_in{
   width: 185px;
   height: 36px;

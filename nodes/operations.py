@@ -73,6 +73,23 @@ class CalcNode_less_than(CalcNode):
         else:
             return 0
 
+@register_node(dict_OP_NODES.get("node_thingworx"), CALC_NODES)
+class node_thingworx(CalcNode):
+    icon = DIR_ICONS + "thingworx.png"
+    op_code = dict_OP_NODES.get("node_thingworx")
+    op_title = "ThingWorx"
+    obj_title = "TW1"
+    content_label = "<"
+    content_label_objname = "node_thingworx_obj"
+
+    def evalOperation(self, input1, input2):
+        input1 = int(input1)
+        input2 = int(input2)
+        if (input1 < input2):
+            return 1
+        else:
+            return 0
+
 
 # @register_node(dict_OP_NODES.get("OP_NODE_MUL"), CALC_NODES)
 class CalcNode_Mul(CalcNode):

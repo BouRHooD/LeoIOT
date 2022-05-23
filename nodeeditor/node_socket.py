@@ -30,7 +30,6 @@ class Socket(Serializable):
 
         if DEBUG: print("Socket -- creating with", self.index, self.position, "for node", self.node)
 
-
         self.grSocket = QDMGraphicsSocket(self, self.socket_type)
 
         self.setSocketPosition()

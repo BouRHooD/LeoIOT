@@ -249,6 +249,10 @@ class QDMGraphicsView(QGraphicsView):
             int(self.last_scene_mouse_position.x()), int(self.last_scene_mouse_position.y())
         )
 
+        for node in self.scene().scene.nodes:
+            node.change_pos()
+            node.updateConnectedEdges()
+
         super().mouseMoveEvent(event)
 
 

@@ -1,5 +1,6 @@
 import json
 
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from settings.calc_conf import *
@@ -111,18 +112,33 @@ class IOTSubWindow(NodeEditorWidget):
                 else:
                     node = get_class_from_opcode(op_code, some_nodes)(self.scene)
 
-                # Left corner
-                if "CalcNode_some_thing_in" in node_type:
-                    views = self.scene.grScene.views()
-                    scene_position = views[0].mapFromScene(mouse_position)
-                    scene_width = views[0].width()
-                    x = scene_position.x()
-                    node.setPos(scene_position.x(), scene_position.y())
-                # Right corner
-                elif "CalcNode_some_thing_out" in node_type:
-                    node.setPos(scene_position.x(), scene_position.y())
-                else:
-                    node.setPos(scene_position.x(), scene_position.y())
+                node.setPos(scene_position.x(), scene_position.y())
+                node.change_pos()
+
+                """
+                views = self.scene.grScene.views()
+                geometry_view = views[0].geometry()
+                point_left_corner = QPoint(geometry_view.x(), geometry_view.y())
+                left_corner_pos = views[0].mapToScene(point_left_corner)
+
+                new_x = left_corner_pos.x()
+                new_y = left_corner_pos.y()
+
+                from nodeeditor.node_node import rectangle_inout
+                rec_in = rectangle_inout(scene=self.scene, title="REC_IN")
+                rec_in.setRect(QtCore.QRectF(new_x, new_y, 200, geometry_view.height()))
+                rec_in.setBrush(QBrush(Qt.gray))
+                rec_in.setZValue(-5)
+                rec_in.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, False)
+                self.scene.grScene.addItem(rec_in)
+
+                rec_out = rectangle_inout(scene=self.scene, title="REC_OUT")
+                rec_out.setRect(QtCore.QRectF(new_x, new_y, 200, geometry_view.height()))
+                rec_out.setBrush(QBrush(Qt.gray))
+                rec_out.setZValue(-5)
+                rec_out.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, False)
+                self.scene.grScene.addItem(rec_out)
+                """
 
                 self.scene.history.storeHistory("Created node %s" % node.__class__.__name__)
             except Exception as ex:
@@ -139,14 +155,14 @@ class IOTSubWindow(NodeEditorWidget):
             select_pose = event.pos()
             item = self.scene.getItemAt(select_pose)
 
-            # if type(item) == QGraphicsProxyWidget:
-            #    item = item.widget()
+            if type(item) == QGraphicsProxyWidget:
+                item = item.widget()
 
-            # if hasattr(item, 'node') and hasattr(item, 'icon_set'):
-            #     select_pose_item_x = event.pos().x()
-            #     select_pose_item_y = event.pos().y()
-            #     if select_pose_item_x:
-            #        self.handleNodeContextMenu(event)
+            if hasattr(item, 'node'):
+                select_pose_item_x = event.pos().x()
+                select_pose_item_y = event.pos().y()
+                if select_pose_item_x:
+                   self.handleNodeContextMenu(event)
             # elif hasattr(item, 'edge'):
             #    self.handleEdgeContextMenu(event)
             # elif item is None:
@@ -158,11 +174,12 @@ class IOTSubWindow(NodeEditorWidget):
     def handleNodeContextMenu(self, event):
         if DEBUG_CONTEXT: print("CONTEXT: NODE")
         context_menu = QMenu(self)
-        markDirtyAct = context_menu.addAction("Mark Dirty")
-        markDirtyDescendantsAct = context_menu.addAction("Mark Descendant Dirty")
-        markInvalidAct = context_menu.addAction("Mark Invalid")
-        unmarkInvalidAct = context_menu.addAction("Unmark Invalid")
-        evalAct = context_menu.addAction("Eval")
+        # markDirtyAct = context_menu.addAction("Mark Dirty")
+        # markDirtyDescendantsAct = context_menu.addAction("Mark Descendant Dirty")
+        # markInvalidAct = context_menu.addAction("Mark Invalid")
+        # unmarkInvalidAct = context_menu.addAction("Unmark Invalid")
+        # evalAct = context_menu.addAction("Eval")
+        deleteNodeAct = context_menu.addAction("Удалить ноду")
         action = context_menu.exec_(self.mapToGlobal(event.pos()))
 
         selected = None
@@ -177,13 +194,15 @@ class IOTSubWindow(NodeEditorWidget):
             selected = item.socket.node
 
         if DEBUG_CONTEXT: print("got item:", selected)
-        if selected and action == markDirtyAct: selected.markDirty()
-        if selected and action == markDirtyDescendantsAct: selected.markDescendantsDirty()
-        if selected and action == markInvalidAct: selected.markInvalid()
-        if selected and action == unmarkInvalidAct: selected.markInvalid(False)
-        if selected and action == evalAct:
-            val = selected.eval()
-            if DEBUG_CONTEXT: print("EVALUATED:", val)
+
+        if selected and action == deleteNodeAct: selected.delete_node()
+        # if selected and action == markDirtyAct: selected.markDirty()
+        # if selected and action == markDirtyDescendantsAct: selected.markDescendantsDirty()
+        # if selected and action == markInvalidAct: selected.markInvalid()
+        # if selected and action == unmarkInvalidAct: selected.markInvalid(False)
+        # if selected and action == evalAct:
+        #     val = selected.eval()
+        #     if DEBUG_CONTEXT: print("EVALUATED:", val)
 
 
     def handleEdgeContextMenu(self, event):

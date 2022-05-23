@@ -44,6 +44,7 @@ class Scene(Serializable):
         self.grScene = QDMGraphicsScene(self)
         self.grScene.setGrScene(self.scene_width, self.scene_height)
 
+
     def onItemSelected(self):
         current_selected_items = self.getSelectedItems()
         if current_selected_items != self._last_selected_items:

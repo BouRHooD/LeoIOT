@@ -21,7 +21,8 @@ dict_OP_NODES = {'OP_NODE_INPUT': 1,
                  'OP_NODE_greater': 8,
                  'OP_NODE_less': 9,
                  'OP_NODE_some_thing_in': 10,
-                 'OP_NODE_some_thing_out': 11
+                 'OP_NODE_some_thing_out': 11,
+                 'node_thingworx': 12
                  }
 
 

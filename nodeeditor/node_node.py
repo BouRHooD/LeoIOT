@@ -1,3 +1,6 @@
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import QPoint
+
 from nodeeditor.node_graphics_node import QDMGraphicsNode
 from nodeeditor.node_content_widget import QDMNodeContentWidget
 from nodeeditor.node_socket import *
@@ -5,6 +8,12 @@ from nodeeditor.utils import dumpException
 
 DEBUG = False
 
+class rectangle_inout(QtWidgets.QGraphicsRectItem):
+
+    def __init__(self, scene, title="Undefined Rect"):
+        super().__init__()
+        self._title = title
+        self.scene = scene
 
 class Node(Serializable):
 
@@ -105,9 +114,9 @@ class Node(Serializable):
 
     def setAlligment(self, str):
         if str == "Left":
-            self.grNode.setPos(LEFT_CENTER)
+            pass
 
-    def title(self, value, value2, value3):
+    def title(self, value, value2, value3=None):
         self._title = value
         self._obj_title = value2
         self._obj_port = value3
@@ -146,6 +155,39 @@ class Node(Serializable):
 
         return [x, y]
 
+    def change_pos(self):
+        try:
+            select_node = self
+            node_type = str(type(select_node))
+
+            mouse_position = self.pos
+            #scene_position = node.scene.grScene.views()[0].mapToScene(mouse_position.toPoint())
+            scene_position = mouse_position
+            # Left corner
+            if "CalcNode_some_thing_in" in node_type:
+                # Знаем расположение левого края в программе
+                views = self.scene.grScene.views()
+                geometry_view = views[0].geometry()
+                point_left_corner = QPoint(geometry_view.x(), geometry_view.y())
+                left_corner_pos = views[0].mapToScene(point_left_corner)
+
+                new_x = left_corner_pos.x()
+                new_y = scene_position.y()
+                self.setPos(new_x, new_y)
+            # Right corner
+            elif "CalcNode_some_thing_out" in node_type:
+                # Знаем расположение правого края в программе
+                views = self.scene.grScene.views()
+                geometry_view = views[0].geometry()
+                point_left_corner = QPoint(geometry_view.x() + geometry_view.width(),
+                                           geometry_view.y() + geometry_view.height())
+                left_corner_pos = views[0].mapToScene(point_left_corner)
+
+                new_x = left_corner_pos.x() - self.grNode.width
+                new_y = scene_position.y()
+                self.setPos(new_x, new_y)
+        except Exception as ex:
+            print(ex)
 
     def updateConnectedEdges(self):
         for socket in self.inputs + self.outputs:
@@ -178,6 +220,15 @@ class Node(Serializable):
     def markDirty(self, new_value=True):
         self._is_dirty = new_value
         if self._is_dirty: self.onMarkedDirty()
+
+    def delete_node(self):
+        for item in self.scene.grScene.selectedItems():
+            from nodeeditor.node_graphics_edge import QDMGraphicsEdge
+            if isinstance(item, QDMGraphicsEdge):
+                item.edge.remove()
+            elif hasattr(item, 'node'):
+                item.node.remove()
+        self.scene.grScene.scene.history.storeHistory("Delete selected", setModified=True)
 
     def onMarkedDirty(self): pass
 
