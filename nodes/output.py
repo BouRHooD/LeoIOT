@@ -13,9 +13,9 @@ class CalcOutputContent(QDMNodeContentWidget):
 
 @register_node(dict_OP_NODES.get("OP_NODE_OUTPUT"), CALC_NODES)
 class CalcNode_Output(CalcNode):
-    DIR_MAIN = os.path.dirname(os.path.abspath(str(sys.modules['__main__'].__file__)))
-    DIR_ICONS = DIR_MAIN + "\styles\icons" + "\\"
-    DIR_CSS = DIR_MAIN + "\styles\qss" + "\\"
+    DIR_MAIN = os.path.dirname(os.path.abspath(str(sys.modules['__main__'].__file__))).replace("\\", "/")
+    DIR_ICONS = DIR_MAIN + "/styles/icons" + "/"
+    DIR_CSS = DIR_MAIN + "/styles/qss" + "/"
 
     icon = DIR_ICONS + "out_b.png"
     op_code = dict_OP_NODES.get("OP_NODE_OUTPUT")

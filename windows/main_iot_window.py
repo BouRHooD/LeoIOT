@@ -23,9 +23,9 @@ import styles.qss.nodeeditor_dark_resources
 DEBUG = False
 
 class MainIOTWindow(NodeEditorWindow):
-    DIR_MAIN = os.path.dirname(os.path.abspath(str(sys.modules['__main__'].__file__)))
-    DIR_ICONS = DIR_MAIN + "\styles\icons" + "\\"
-    DIR_CSS = DIR_MAIN + "\styles\qss" + "\\"
+    DIR_MAIN = os.path.dirname(os.path.abspath(str(sys.modules['__main__'].__file__))).replace("\\", "/")
+    DIR_ICONS = DIR_MAIN + "/styles/icons" + "/"
+    DIR_CSS = DIR_MAIN + "/styles/qss" + "/"
 
     def initUI(self):
         self.name_company = 'Surflay'
@@ -33,9 +33,9 @@ class MainIOTWindow(NodeEditorWindow):
 
         self.ON_OFF_SEND_DATA = False
 
-        self.stylesheet_filename = os.path.join(os.path.dirname(__file__), self.DIR_CSS + "nodeeditor.qss")
+        self.stylesheet_filename = self.DIR_CSS + "nodeeditor.qss"
         loadStylesheets(
-            os.path.join(os.path.dirname(__file__), self.DIR_CSS + "nodeeditor.qss"),
+            self.DIR_CSS + "nodeeditor.qss",
             self.stylesheet_filename
         )
 

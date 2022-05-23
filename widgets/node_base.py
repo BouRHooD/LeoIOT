@@ -13,9 +13,9 @@ from nodeeditor.utils import dumpException
 
 
 class CalcGraphicsNode(QDMGraphicsNode):
-    DIR_MAIN = os.path.dirname(os.path.abspath(str(sys.modules['__main__'].__file__)))
-    DIR_ICONS = DIR_MAIN + "\styles\icons" + "\\"
-    DIR_CSS = DIR_MAIN + "\styles\qss" + "\\"
+    DIR_MAIN = os.path.dirname(os.path.abspath(str(sys.modules['__main__'].__file__))).replace("\\", "/")
+    DIR_ICONS = DIR_MAIN + "/styles/icons" + "/"
+    DIR_CSS = DIR_MAIN + "/styles/qss" + "/"
 
     def initSizes(self):
         super().initSizes()

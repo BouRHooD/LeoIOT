@@ -1,5 +1,5 @@
 import sys
-from os import path
+import os
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -8,9 +8,9 @@ from PyQt5.QtCore import *
 class thing_window(QMainWindow):
     login_data = pyqtSignal(str, str, str, str, str, bool)
     name_thing = "Вещь"
-    DIR_MAIN = path.dirname(path.abspath(str(sys.modules['__main__'].__file__)))
-    DIR_ICONS = DIR_MAIN + "\styles\icons" + "\\"
-    DIR_SETTINGS = DIR_MAIN + "\settings\\"
+    DIR_MAIN = os.path.dirname(os.path.abspath(str(sys.modules['__main__'].__file__))).replace("\\", "/")
+    DIR_ICONS = DIR_MAIN + "/styles/icons" + "/"
+    DIR_SETTINGS = DIR_MAIN + "/settings/"
     icon = DIR_ICONS + "house-things.png"
     obj_port = ""
     obj_name = "T"
