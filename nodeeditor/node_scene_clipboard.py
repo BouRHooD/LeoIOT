@@ -98,7 +98,7 @@ class SceneClipboard():
             new_node = self.scene.getNodeClassFromData(node_data)
             # Если уже есть объект класса, то создаём новую
             if hasattr(new_node, "scene"):
-                from examples.example_calculator.nodes.some_thing import CalcNode_some_thing
+                from nodes.some_thing import CalcNode_some_thing
                 new_node = CalcNode_some_thing(scene=self.scene, icon=new_node.icon,
                                                op_code=new_node.op_code, op_title=new_node.op_title)
             else:

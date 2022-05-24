@@ -22,7 +22,8 @@ dict_OP_NODES = {'OP_NODE_INPUT': 1,
                  'OP_NODE_less': 9,
                  'OP_NODE_some_thing_in': 10,
                  'OP_NODE_some_thing_out': 11,
-                 'node_thingworx': 12
+                 'node_thingworx': 12,
+                 'node_fogwing_iiot': 13
                  }
 
 
@@ -64,7 +65,14 @@ def register_node(op_code, SELECT_NODES, original_class=None):
 
 def get_class_from_opcode(op_code, select_nodes):
     if op_code not in select_nodes:
-        raise OpCodeNotRegistered("OpCode '%d' is not registered" % op_code)
+        flag_find = False
+        for select_node in select_nodes:
+            if op_code == select_node:
+                flag_find = True
+                break
+
+        if flag_find is False:
+            raise OpCodeNotRegistered("OpCode '%d' is not registered" % op_code)
     return select_nodes[op_code]
 
 # import all nodes and register them

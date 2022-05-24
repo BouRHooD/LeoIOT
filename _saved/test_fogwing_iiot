@@ -1,0 +1,139 @@
+{
+    "id": 1484674096384,
+    "scene_width": 64000,
+    "scene_height": 64000,
+    "nodes": [
+        {
+            "id": 1484729862272,
+            "title": "\u0412\u0435\u0449\u044c #4",
+            "obj_title": "T4",
+            "obj_port": "GPIO_Digital_4",
+            "obj_data": null,
+            "pos_x": -487.0,
+            "pos_y": -35.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 1484729863328,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 3
+                }
+            ],
+            "content": {
+                "value": "1"
+            },
+            "op_code": 4,
+            "name_class": "calc_node_some_thing_in"
+        },
+        {
+            "id": 1484672123808,
+            "title": "\u0414\u0430\u0442\u0447\u0438\u043a \u0442\u0435\u043c\u043f\u0435\u0440\u0430\u0442\u0443\u0440\u044b",
+            "obj_title": "T1",
+            "obj_port": "None",
+            "obj_data": null,
+            "pos_x": -487.0,
+            "pos_y": 124.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 1484672123904,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 3
+                }
+            ],
+            "content": {
+                "value": "1"
+            },
+            "op_code": 12,
+            "name_class": "calc_node_some_thing_in"
+        },
+        {
+            "id": 1484730029008,
+            "title": "Fogwing IIoT Platform",
+            "obj_title": "FI1",
+            "obj_port": null,
+            "obj_data": {
+                "server_name": "portal.fogwing.net",
+                "thing_name": "2170",
+                "service_name": "581e098c9ac93f07",
+                "appkey_data": "b5d4a44eeaa24a5aac02a1c30ec911d2"
+            },
+            "pos_x": -123.0,
+            "pos_y": 7.0,
+            "inputs": [
+                {
+                    "id": 1484730029296,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 0
+                },
+                {
+                    "id": 1484730029440,
+                    "index": 1,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 1
+                }
+            ],
+            "outputs": [
+                {
+                    "id": 1484730029488,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 0
+                }
+            ],
+            "content": {},
+            "op_code": 13,
+            "name_class": "node_fogwing_iiot_obj"
+        },
+        {
+            "id": 1484662351328,
+            "title": "\u0412\u044b\u0445\u043e\u0434\u043d\u043e\u0435",
+            "obj_title": "O1",
+            "obj_port": null,
+            "obj_data": null,
+            "pos_x": 261.0,
+            "pos_y": -20.0,
+            "inputs": [
+                {
+                    "id": 1484769436480,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 1
+                }
+            ],
+            "outputs": [],
+            "content": {},
+            "op_code": 2,
+            "name_class": "calc_node_output"
+        }
+    ],
+    "edges": [
+        {
+            "id": 1484729910896,
+            "edge_type": 2,
+            "start": 1484729863328,
+            "end": 1484730029296
+        },
+        {
+            "id": 1484730029056,
+            "edge_type": 2,
+            "start": 1484730029440,
+            "end": 1484672123904
+        },
+        {
+            "id": 1484769481776,
+            "edge_type": 2,
+            "start": 1484730029488,
+            "end": 1484769436480
+        }
+    ]
+}

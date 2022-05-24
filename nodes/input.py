@@ -50,7 +50,6 @@ class CalcNode_Input(CalcNode):
     def evalImplementation(self):
         u_value = self.content.edit.text()
         s_value = str(u_value)
-        s_value = self.string_eval_math(s_value)
         self.value = s_value
         self.markDirty(False)
         self.markInvalid(False)
@@ -64,51 +63,41 @@ class CalcNode_Input(CalcNode):
 
         return self.value
 
-    def string_eval_math(self, in_val):
-        if ">" in in_val:
-            chunks = in_val.split('>')
 
-            if "+" in chunks[0]:
-                chunks_add = chunks[0].split('+')
-                val_left = int(chunks_add[0]) + int(chunks_add[1])
-                val_right = int(chunks[1])
+@register_node(dict_OP_NODES.get("node_fogwing_iiot"), CALC_NODES)
+class node_fogwing_iiot(CalcNode):
+    icon = DIR_ICONS + "fogwing_logo.png"
+    op_code = dict_OP_NODES.get("node_fogwing_iiot")
+    op_title = "Fogwing IIoT Platform"
+    obj_title = "FI1"
+    content_label = "-----"
+    content_label_objname = "node_fogwing_iiot_obj"
+    obj_data = None
+    obj_string = None
 
-                if val_left > val_right:
-                    return 1
-                else:
-                    return 0
+    def __init__(self, scene):
+        super().__init__(scene, inputs=[], outputs=[3])
+        self.eval()
 
-            if "-" in chunks[0]:
-                chunks_add = chunks[0].split('+')
-                val_left = int(chunks_add[0]) - int(chunks_add[1])
-                val_right = int(chunks[1])
+    def initInnerClasses(self):
+        from nodes.output import CalcOutputContent
+        self.content = CalcOutputContent(self)
+        self.grNode = CalcGraphicsNode(self)
 
-                if val_left > val_right:
-                    return 1
-                else:
-                    return 0
+    def evalImplementation(self):
+        u_value = self.value
 
-            if "<" in in_val:
-                chunks = in_val.split('>')
+        self.value = u_value
+        self.markDirty(False)
+        self.markInvalid(False)
 
-                if "+" in chunks[0]:
-                    chunks_add = chunks[0].split('+')
-                    val_left = int(chunks_add[0]) + int(chunks_add[1])
-                    val_right = int(chunks[1])
+        self.markDescendantsInvalid(False)
+        self.markDescendantsDirty()
 
-                    if val_left < val_right:
-                        return 1
-                    else:
-                        return 0
+        self.grNode.setToolTip("")
 
-                if "-" in chunks[0]:
-                    chunks_add = chunks[0].split('+')
-                    val_left = int(chunks_add[0]) - int(chunks_add[1])
-                    val_right = int(chunks[1])
+        self.evalChildren()
 
-                    if val_left < val_right:
-                        return 1
-                    else:
-                        return 0
+        self.content.lbl.setText("%s" % self.content_label)
+        return self.value
 
-        return in_val

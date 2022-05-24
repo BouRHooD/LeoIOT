@@ -26,6 +26,7 @@ class MainIOTWindow(NodeEditorWindow):
     DIR_MAIN = os.path.dirname(os.path.abspath(str(sys.modules['__main__'].__file__))).replace("\\", "/")
     DIR_ICONS = DIR_MAIN + "/styles/icons" + "/"
     DIR_CSS = DIR_MAIN + "/styles/qss" + "/"
+    thingListWidget = None
 
     def initUI(self):
         self.name_company = 'Surflay'
@@ -120,6 +121,7 @@ class MainIOTWindow(NodeEditorWindow):
                     else:
                         # we need to create new subWindow and open the file
                         nodeeditor = IOTSubWindow()
+                        nodeeditor.scene.thingListChanged = self.thingListWidget
                         if nodeeditor.fileLoad(fname):
                             self.statusBar().showMessage("File %s loaded" % fname, 5000)
                             nodeeditor.setTitle()
@@ -266,14 +268,14 @@ class MainIOTWindow(NodeEditorWindow):
         self.addDockWidget(Qt.LeftDockWidgetArea, self.nodesDock)
 
         # "Узлы подключенных вещей"
-        self.thingListWidget = QDMDragListbox(SOME_NODES=THING_NODES, checkable=True)
+        self.thingListWidget = QDMDragListbox(SOME_NODES=THING_NODES, checkable=False)
         self.thingListWidget.itemClicked.connect(self.state_change)
         self.thingListWidget.addMyItem(name='Датчик освещенности', icon=self.DIR_ICONS + 'icon-brightness-1758514.png', op_code=11, obj_title="T0")
         self.thingListWidget.addMyItem(name='Датчик температуры',  icon=self.DIR_ICONS + 'icon-temperature-sensor-1485456.png', op_code=12, obj_title="T1")
         self.thingListWidget.addMyItem(name='Лампа',  icon=self.DIR_ICONS + 'icon-lightbulb-673876.png', op_code=13, obj_title="T2", thing_in=False)
         self.thingListWidget.addMyItem(name='Вентилятор',  icon=self.DIR_ICONS + 'icon-fan-877921.png', op_code=14, obj_title="T3", thing_in=False)
 
-        self.ON_OFFsendButton_tw = QtWidgets.QPushButton("Включить отправку на ThingWorx", clicked=self.ON_OFFsendDataTW)
+        self.ON_OFFsendButton_tw = QtWidgets.QPushButton("Включить отправку на сервера", clicked=self.ON_OFFsendDataTW)
         self.addButton = QtWidgets.QPushButton(text='Добавить вещь', clicked=self.addThing_element)
         self.delButton = QtWidgets.QPushButton(text='Удалить вещь', clicked=self.deleteThing_element)
 
@@ -331,54 +333,18 @@ class MainIOTWindow(NodeEditorWindow):
     def ON_OFFsendDataTW(self):
         if self.ON_OFF_SEND_DATA:
             self.ON_OFF_SEND_DATA = False
-            self.ON_OFFsendButton_tw.setText("Включить отправку на ThingWorx")
+            self.ON_OFFsendButton_tw.setText("Включить отправку на сервера")
         else:
             self.ON_OFF_SEND_DATA = True
-            self.ON_OFFsendButton_tw.setText("Отключить отправку на ThingWorx")
+            self.ON_OFFsendButton_tw.setText("Отключить отправку на сервера")
             self.sendDataTW()
 
 
     def sendDataTW(self):
-        url = 'https://PP-2107252209MI.portal.ptc.io:8443/Thingworx/Things/Home_IoT/Services/InOut'
-
-        headers = {
-            'Content-Type': 'application/json',
-            'appkey': '768cecc2-f48a-4783-b2c6-29fdd734e538',
-            'Accept': 'application/json',
-            'x-thingworx-session': 'true',
-            'Cache-Control': 'no-cache',
-        }
-
-        checked_items = []
-        _data = ""
-        for index in range(self.thingListWidget.count()):
-            if self.thingListWidget.item(index).checkState() == Qt.Checked:
-                item = self.thingListWidget.item(index)
-                checked_items.append(item)
-
-        outDict = {}
-        for index in range(len(checked_items)):
-            item = checked_items[index]
-            index_thing = self.thingListWidget.indexFromItem(item).row()
-            keys = list(THING_NODES)
-            item_thing = THING_NODES.get(keys[index_thing])
-            outDict[f'{item_thing.obj_title}'] = f"{item_thing.value}"
-
-        # JSON форма данных для отправки
-        data = outDict
-        # data = {"Lamp_Main_Home": "5555", "temp": "1111", "illumination": 1110}
-
-        # Отправили запрос с данными на ThingWorx(TW)
-        # print(f'Data send: {data}')
-        # response = requests.put(url, headers=headers, json=data)
-        self.pool_processing_create(url, data=data, headers=headers)
-
-        # Если код 200, то данные отправлены были успешно
-        # print(f'Response Code: {response.status_code}')
-        # print(f'Response Content: {response.content}')
-        # print(f'------------------------------------------------------------')
+        self.pool_processing_create()
 
     def on_success(self, response):
+        if response is None: return
         print(f'Response Code: {response.status_code}')
         print(f'Response Content: {response.content}')
         print(f'------------------------------------------------------------')
@@ -386,40 +352,113 @@ class MainIOTWindow(NodeEditorWindow):
     def on_error(self, ex):
         print(f'Post requests failed: {ex}')
 
-    def call_api(self, url, data, headers):
+    def call_api(self):
         while self.ON_OFF_SEND_DATA:
-            print(f'Data send: {data}')
+            self.last_node = None
+            try:
+                list_dict_data = self.getDictDataForSendToServer()
+                if len(list_dict_data) < 1: continue
 
-            checked_items = []
-            _data = ""
-            for index in range(self.thingListWidget.count()):
-                if self.thingListWidget.item(index).checkState() == Qt.Checked:
-                    item = self.thingListWidget.item(index)
-                    checked_items.append(item)
+                for dict_data in list_dict_data:
+                    url = dict_data["url"]
+                    headers = dict_data["headers"]
+                    data = dict_data["data"]
+                    node = dict_data["node"]
+                    self.last_node = node
 
-            outDict = {}
-            for index in range(len(checked_items)):
-                item = checked_items[index]
-                index_thing = self.thingListWidget.indexFromItem(item).row()
-                keys = list(THING_NODES)
-                item_thing = THING_NODES.get(keys[index_thing])
-                outDict[f'{item_thing.obj_title}'] = f"{item_thing.value}"
+                    response = None
 
-            # JSON форма данных для отправки
-            print(f'Data send: {data}')
-            data = outDict
+                    node_lbl = node.content_label_objname
+                    if "node_thingworx_obj" in node_lbl:
+                        response = requests.put(url, headers=headers, json=data)
+                    elif "node_fogwing_iiot_obj" in node_lbl:
+                        response = requests.post(url, headers=headers, json=data)
 
-            response = requests.put(url, headers=headers, json=data)
-            print(f'Response Code: {response.status_code}')
-            print(f'Response Content: {response.content}')
-            print(f'------------------------------------------------------------')
+                    print(f'Data send: {dict_data}')
+
+                    if response is not None:
+                        node.value = "Code:" + str(response.status_code) + "\n" + "Content:" + str(response.content)
+                        node.markDirty()
+                        node.eval()
+
+                        print(f'Response Code: {response.status_code}')
+                        print(f'Response Content: {response.content}')
+                        print(f'------------------------------------------------------------')
+                    else:
+                        node.value = "Error"
+                        node.markDirty()
+                        node.eval()
+            except Exception as ex:
+                if self.last_node is not None:
+                    self.last_node.value = "Error"
+                    self.last_node.markDirty()
+                    self.last_node.eval()
+                print(ex)
             time.sleep(3)
-        return response
 
-    def pool_processing_create(self, url, data, headers):
+    def getDictDataForSendToServer(self):
+        url = None
+        outDict = {}
+        headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        }
+
+        list_dict_data = []
+        for thing_index in THING_NODES:
+            thing_node = THING_NODES.get(thing_index)
+            if hasattr(thing_node, 'scene') and hasattr(thing_node.scene, 'nodes') and len(thing_node.scene.nodes) > 0:
+                for scene_node in thing_node.scene.nodes:
+                    node_lbl = scene_node.content_label_objname
+                    if node_lbl in ['node_thingworx_obj', "node_fogwing_iiot_obj"]:
+                        if hasattr(scene_node, 'obj_data') and scene_node.obj_data is not None:
+                            server_name = scene_node.obj_data["server_name"]
+                            thing_name = scene_node.obj_data["thing_name"]
+                            service_name = scene_node.obj_data["service_name"]
+                            appkey_data = scene_node.obj_data["appkey_data"]
+
+                            if 'node_thingworx_obj' in node_lbl:
+                                url = 'https://' + server_name + ':8443/Thingworx/Things/' + thing_name + '/Services/' + service_name
+
+                                headers = {
+                                    'Content-Type': 'application/json',
+                                    'appkey': appkey_data,
+                                    'Accept': 'application/json',
+                                    'x-thingworx-session': 'true',
+                                    'Cache-Control': 'no-cache',
+                                }
+
+                            if 'node_fogwing_iiot_obj' in node_lbl:
+                                # curl -X POST "https://portal.fogwing.net/api/v1/iothub/postPayload/withApiKey?accountID=2170&apiKey=b5d4a44eeaa24a5aac02a1c30ec911d2&devEui=581e098c9ac93f07" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"T1\": 2, \"T2\": 1}"
+                                url = 'https://' + server_name + '/api/v1/iothub/postPayload/withApiKey?accountID=' + thing_name + '&apiKey=' + appkey_data + '&devEui=' + service_name
+
+                                headers = {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                }
+
+                            node_inputs = scene_node.inputs
+                            for node_input in node_inputs:
+                                start_node = node_input.edges[0].start_socket.node
+                                end_node = node_input.edges[0].end_socket.node
+                                if start_node.content_label_objname not in ['node_thingworx_obj', "node_fogwing_iiot_obj"]:
+                                    outDict[f'{start_node.obj_title}'] = f"{start_node.value}"
+                                elif end_node.content_label_objname not in ['node_thingworx_obj', "node_fogwing_iiot_obj"]:
+                                    outDict[f'{end_node.obj_title}'] = f"{end_node.value}"
+
+                            scene_node.content_label = url + "\n" + str(outDict)
+                            #scene_node.value = outDict
+                            scene_node.markDirty()
+                            scene_node.eval()
+
+                            list_dict_data.append({'url': url, 'headers': headers, 'data': outDict, 'node': scene_node})
+                break
+
+        return list_dict_data
+
+    def pool_processing_create(self):
         pool = Pool()
-        pool.apply_async(self.call_api, args=[url, data, headers],
-                         callback=self.on_success, error_callback=self.on_error)
+        pool.apply_async(self.call_api, callback=self.on_success, error_callback=self.on_error)
 
     def addThing_element(self):
         from windows.add_thing_win import thing_window

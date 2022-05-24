@@ -17,11 +17,13 @@ class rectangle_inout(QtWidgets.QGraphicsRectItem):
 
 class Node(Serializable):
 
-    def __init__(self, scene, title="Undefined Node", obj_title="Undefined", obj_port=None, inputs=[], outputs=[]):
+    def __init__(self, scene, title="Undefined Node", obj_title="Undefined", obj_port=None, obj_data=None, inputs=[], outputs=[]):
         super().__init__()
         self._title = title
         self._obj_title = obj_title
         self.scene = scene
+        self.obj_port = obj_port
+        self.obj_data = obj_data
 
         self.initInnerClasses()
         self.initSettings()
@@ -367,6 +369,8 @@ class Node(Serializable):
             ('id', self.id),
             ('title', self.op_title),
             ('obj_title', self.obj_title),
+            ('obj_port', self.obj_port),
+            ('obj_data', self.obj_data),
             ('pos_x', self.grNode.scenePos().x()),
             ('pos_y', self.grNode.scenePos().y()),
             ('inputs', inputs),
@@ -380,7 +384,10 @@ class Node(Serializable):
             hashmap[data['id']] = self
 
             self.setPos(data['pos_x'], data['pos_y'])
-            self.title(data['title'], data['obj_title'])
+            if 'obj_port' in data and data['obj_port'] is not None:
+                self.title(data['title'], data['obj_title'], data['obj_port'])
+            else:
+                self.title(data['title'], data['obj_title'])
 
             data['inputs'].sort(key=lambda socket: socket['index'] + socket['position'] * 10000)
             data['outputs'].sort(key=lambda socket: socket['index'] + socket['position'] * 10000)
@@ -402,6 +409,14 @@ class Node(Serializable):
                                     is_input=False)
                 new_socket.deserialize(socket_data, hashmap, restore_id)
                 self.outputs.append(new_socket)
+
+            if 'obj_data' in data and data["obj_data"] is not None:
+                self.obj_data = data["obj_data"]
+
+            if 'obj_port' in data and data["obj_port"] is not None:
+                self.obj_data = data["obj_port"]
+
+            return self
         except Exception as e: dumpException(e)
 
         # also deseralize the content of the node

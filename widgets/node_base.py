@@ -74,12 +74,13 @@ class CalcNode(Node):
     op_code = 0
     op_title = "Undefined"
     obj_title = "A0"
-    obj_port=None
+    obj_port = None
+    obj_data = None
     content_label = ""
     content_label_objname = "calc_node_bg"
 
     def __init__(self, scene, inputs=[2,2], outputs=[1]):
-        super().__init__(scene, self.op_title, self.obj_title, self.obj_port, inputs, outputs)
+        super().__init__(scene, self.op_title, self.obj_title, self.obj_port, self.obj_data, inputs, outputs)
         self.value = None
 
         # Изначально помечаем ноду как испорченную

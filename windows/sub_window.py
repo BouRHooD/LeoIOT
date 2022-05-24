@@ -8,6 +8,7 @@ from nodeeditor.node_editor_widget import NodeEditorWidget
 from widgets.node_base import *
 from nodeeditor.node_edge import EDGE_TYPE_DIRECT, EDGE_TYPE_BEZIER
 from nodeeditor.utils import dumpException
+from windows.dialogs import PopUpDialogThingWorx, PopUpDialogThingWorxCountInOut
 
 DEBUG = False
 DEBUG_CONTEXT = False
@@ -110,10 +111,58 @@ class IOTSubWindow(NodeEditorWidget):
                     self.scene.grScene.addItem(node.grNode)
                     node.scene = self.scene
                 else:
-                    node = get_class_from_opcode(op_code, some_nodes)(self.scene)
+                    # Если объект является thingworx, то спрашиваем у пользователя настройки для создания объекта
+                    self.return_value = None
+                    node_lbl = select_node.content_label_objname
+                    if node_lbl in ['node_thingworx_obj', "node_fogwing_iiot_obj"]:
+                        if 'node_thingworx_obj' in node_lbl:
+                            dialog_thingworx = PopUpDialogThingWorxCountInOut()
+                            self.return_value = dialog_thingworx.exec_()
 
+                        if 'node_fogwing_iiot_obj' in node_lbl:
+                            dialog_thingworx = PopUpDialogThingWorxCountInOut(outputs_enable=False, outputs_value=1)
+                            self.return_value = dialog_thingworx.exec_()
+
+                        if self.return_value is None:
+                            return
+
+                    # Создаём экземпляр ноды на сцене для thingworx
+                    if self.return_value is not None:
+                        node = get_class_from_opcode(op_code, some_nodes)(scene=self.scene,
+                                                                          inputs=self.return_value["inputs"],
+                                                                          outputs=self.return_value["outputs"])
+                    # Создаём экземпляр ноды на сцене для остальных объектов
+                    else:
+                        node = get_class_from_opcode(op_code, some_nodes)(scene=self.scene)
+
+                # Ставим объект в нужную позицию на сцене и после прикрепляем его к краям, если это необходимо
                 node.setPos(scene_position.x(), scene_position.y())
                 node.change_pos()
+
+                # Если объект является thingworx, то спрашиваем у пользователя настройки для создания объекта
+                self.return_value = None
+                node_lbl = select_node.content_label_objname
+                if node_lbl in ['node_thingworx_obj', "node_fogwing_iiot_obj"]:
+                    if 'node_thingworx_obj' in node_lbl:
+                        dialog_thingworx = PopUpDialogThingWorx(server_name="PP-2107252209MI.portal.ptc.io",
+                                                                thing_name="Home_IoT", service_name="InOut",
+                                                                appkey_data='768cecc2-f48a-4783-b2c6-29fdd734e538')
+                        self.return_value = dialog_thingworx.exec_()
+
+                    if 'node_fogwing_iiot_obj' in node_lbl:
+                        dialog_thingworx = PopUpDialogThingWorx(server_name_exp_lbl="portal.fogwing.net",
+                                                                thing_name_lbl="Account ID",
+                                                                service_name_lbl="devEui",
+                                                                appkey_data_lbl="apiKey",
+                                                                server_name="portal.fogwing.net",
+                                                                thing_name="2170", service_name="581e098c9ac93f07",
+                                                                appkey_data='b5d4a44eeaa24a5aac02a1c30ec911d2')
+                        self.return_value = dialog_thingworx.exec_()
+
+                    if self.return_value is None:
+                        pass
+                    else:
+                        node.obj_data = self.return_value
 
                 """
                 views = self.scene.grScene.views()

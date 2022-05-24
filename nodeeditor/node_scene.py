@@ -1,6 +1,9 @@
 import os
 import json
 from collections import OrderedDict
+
+from PyQt5 import QtCore
+
 from nodeeditor.utils import dumpException
 from nodeeditor.node_serializable import Serializable
 from nodeeditor.node_graphics_scene import QDMGraphicsScene
@@ -8,12 +11,15 @@ from nodeeditor.node_node import Node
 from nodeeditor.node_edge import Edge
 from nodeeditor.node_scene_history import SceneHistory
 from nodeeditor.node_scene_clipboard import SceneClipboard
+from widgets.drag_listbox import QDMDragListbox
 
 
 class InvalidFile(Exception): pass
 
 
 class Scene(Serializable):
+    thingListChanged = QtCore.pyqtSignal(QDMDragListbox)
+
     def __init__(self):
         super().__init__()
         self.nodes = []
@@ -177,11 +183,41 @@ class Scene(Serializable):
 
         # create nodes
         for node_data in data['nodes']:
+
+            # Перед добавлением на сцену, добавляем в лист вещей, если такой ноды нет
+            if "name_class" in node_data and 'node_some_thing' in node_data["name_class"] and "op_code" in node_data:
+                thingListWidget = self.thingListChanged
+                if thingListWidget is not None:
+
+                    # let thingListWidget haven elements in it.
+                    list_items = []
+                    for x in range(thingListWidget.count()):
+                        from settings.calc_conf import THING_NODES
+                        index_thing = x
+                        keys = list(THING_NODES)
+                        item_thing = THING_NODES.get(keys[index_thing])
+                        list_items.append(item_thing)
+
+                    flag_need_to_add = True
+                    if node_data["op_code"] not in list_items:
+                        for item in list_items:
+                            if int(node_data["op_code"]) == int(item.op_code):
+                                flag_need_to_add = False
+                                break
+
+                    if flag_need_to_add:
+                        thing_in = False
+                        if "_in" in node_data["name_class"]:
+                            thing_in = True
+                        thingListWidget.addMyItem(name=node_data["title"], op_code=node_data["op_code"],
+                                                  obj_title=node_data["obj_title"], obj_port=node_data["obj_port"],
+                                                  thing_in=thing_in)
+
             node = self.getNodeClassFromData(node_data)
             if "Node" in str(type(node)):
                 node = self.deserialize_node(node, node_data, hashmap, restore_id)
             else:
-                node(self).deserialize(node_data, hashmap, restore_id)
+                node = node(self).deserialize(node_data, hashmap, restore_id)
 
         # create edges
         for edge_data in data['edges']:

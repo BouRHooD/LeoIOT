@@ -79,7 +79,7 @@ class node_thingworx(CalcNode):
     op_code = dict_OP_NODES.get("node_thingworx")
     op_title = "ThingWorx"
     obj_title = "TW1"
-    content_label = "<"
+    content_label = ""
     content_label_objname = "node_thingworx_obj"
 
     def evalOperation(self, input1, input2):

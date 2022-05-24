@@ -48,7 +48,6 @@ class QDMGraphicsView(QGraphicsView):
         self._drag_enter_listeners = []
         self._drop_listeners = []
 
-
     def initUI(self):
         self.setRenderHints(QPainter.Antialiasing | QPainter.HighQualityAntialiasing | QPainter.TextAntialiasing | QPainter.SmoothPixmapTransform)
 
@@ -63,12 +62,13 @@ class QDMGraphicsView(QGraphicsView):
         # enable dropping
         self.setAcceptDrops(True)
 
-
     def dragEnterEvent(self, event):
-        for callback in self._drag_enter_listeners: callback(event)
+        for callback in self._drag_enter_listeners:
+            callback(event)
 
     def dropEvent(self, event):
-        for callback in self._drop_listeners: callback(event)
+        for callback in self._drop_listeners:
+            callback(event)
 
     def addDragEnterListener(self, callback):
         self._drag_enter_listeners.append(callback)
