@@ -356,6 +356,7 @@ class MainIOTWindow(NodeEditorWindow):
         while self.ON_OFF_GPIO_PORTS:
             try:
                 list_dict_data = self.getDictDataForGPIO()
+                print(list_dict_data)
                 try:
                     import RPi.GPIO as GPIO
                     # GPIO.BCM - будет использоваться нумерация GPIO
@@ -363,28 +364,34 @@ class MainIOTWindow(NodeEditorWindow):
                     GPIO.setmode(GPIO.BCM)
 
                     for dict_data in list_dict_data:
-                        print(dict_data)
-                        select_node = dict_data["node"]
-                        select_type_node = dict_data["select_type_node"]
-                        select_type_port = dict_data["select_type_port"]
-                        select_num_port = int(dict_data["select_num_port"])
+                        try:
+                            print(dict_data)
+                            select_node = dict_data["node"]
+                            select_type_node = dict_data["select_type_node"]
+                            select_type_port = dict_data["select_type_port"]
+                            select_num_port = dict_data["select_num_port"]
+                            if select_num_port is None: continue
 
-                        if select_type_node == "input" and select_type_port == "digital":
-                            pass
-                            # Конфигурируем GPIO как вход
-                            GPIO.setup(select_num_port, GPIO.IN)
-                            # Считываем сигнал с GPIO 8 в переменную pin_signal_input
-                            pin_signal_input = GPIO.input(select_num_port)
-                            print(f'pin_signal_input: {pin_signal_input}')
-                            select_node.setText(pin_signal_input)
-                            select_node.evalImplementation()
-                        elif select_type_node == "output" and select_type_port == "digital":
-                            # Конфигурируем GPIO как выход
-                            GPIO.setup(select_num_port, GPIO.OUT)
-                            node_select_value = select_node.evalImplementation()
-                            value_bool = bool(node_select_value)
-                            # Выводим на GPIO 7 логическую "1" (3.3 V) или логический "0"
-                            GPIO.output(select_num_port, value_bool)
+                            select_num_port = int(select_num_port)
+
+                            if select_type_node == "input" and select_type_port == "digital":
+                                pass
+                                # Конфигурируем GPIO как вход
+                                GPIO.setup(select_num_port, GPIO.IN)
+                                # Считываем сигнал с GPIO 8 в переменную pin_signal_input
+                                pin_signal_input = GPIO.input(select_num_port)
+                                print(f'pin_signal_input: {pin_signal_input}')
+                                select_node.setText(pin_signal_input)
+                                select_node.evalImplementation()
+                            elif select_type_node == "output" and select_type_port == "digital":
+                                # Конфигурируем GPIO как выход
+                                GPIO.setup(select_num_port, GPIO.OUT)
+                                node_select_value = select_node.evalImplementation()
+                                value_bool = bool(node_select_value)
+                                # Выводим на GPIO 7 логическую "1" (3.3 V) или логический "0"
+                                GPIO.output(select_num_port, value_bool)
+                        except Exception as ex:
+                            dumpException(ex)
                 except Exception as ex:
                     dumpException(ex)
                 finally:
