@@ -63,9 +63,9 @@ class QDMDragListbox(QListWidget):
 
                 print(icon)
                 # Если было сохранено на ПК с windows
-                if icon is not None and 'C:\\Users' in icon:
-                    filename, file_extension = os.path.splitext(icon)
-                    icon = DIR_ICONS + filename + file_extension
+                if icon is not None and ('C:\\Users' in icon or 'C:/Users' in icon):
+                    filename = os.path.basename(icon)
+                    icon = DIR_ICONS + filename
                     print(icon)
 
                 from nodes.some_thing import CalcNode_some_thing_in
