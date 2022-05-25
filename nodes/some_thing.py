@@ -57,7 +57,7 @@ class CalcNode_some_thing_in(CalcNode):
         self.content.edit.textChanged.connect(self.onInputChanged)
 
     def setText(self, _text):
-        self.content.edit.setText(_text)
+        self.content.edit.setText(str(_text))
 
     def evalImplementation(self):
         u_value = self.content.edit.text()
