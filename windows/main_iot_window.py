@@ -447,7 +447,7 @@ class MainIOTWindow(NodeEditorWindow):
                     self.last_node.markDirty()
                     self.last_node.eval()
                 print(ex)
-            time.sleep(3)
+            time.sleep(1)
 
     def getDictDataForSendToServer(self):
         url = None

@@ -128,9 +128,11 @@ class IOTSubWindow(NodeEditorWidget):
 
                     # Создаём экземпляр ноды на сцене для thingworx
                     if self.return_value is not None:
+                        array_inputs = self.return_value['inputs']
+                        array_outputs = self.return_value['outputs']
                         node = get_class_from_opcode(op_code, some_nodes)(scene=self.scene,
-                                                                          inputs=self.return_value["inputs"],
-                                                                          outputs=self.return_value["outputs"])
+                                                                          inputs=array_inputs,
+                                                                          outputs=array_outputs)
                     # Создаём экземпляр ноды на сцене для остальных объектов
                     else:
                         node = get_class_from_opcode(op_code, some_nodes)(scene=self.scene)

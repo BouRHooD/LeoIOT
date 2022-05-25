@@ -210,8 +210,8 @@ class Scene(Serializable):
                         if "_in" in node_data["name_class"]:
                             thing_in = True
                         thingListWidget.addMyItem(name=node_data["title"], op_code=node_data["op_code"],
-                                                  obj_title=node_data["obj_title"], obj_port=node_data["obj_port"],
-                                                  thing_in=thing_in)
+                                                  icon=node_data["icon"], obj_title=node_data["obj_title"],
+                                                  obj_port=node_data["obj_port"], thing_in=thing_in)
 
             node = self.getNodeClassFromData(node_data)
             if "Node" in str(type(node)):
@@ -232,7 +232,11 @@ class Scene(Serializable):
             hashmap[data['id']] = node.id
 
             node.setPos(data['pos_x'], data['pos_y'])
-            node.title(data['title'], data['obj_title'])
+
+            if hasattr(node, 'obj_port') and node.obj_port is not None:
+                node.title(data['title'], data['obj_title'], data['obj_port'])
+            else:
+                node.title(data['title'], data['obj_title'])
 
             data['inputs'].sort(key=lambda socket: socket['index'] + socket['position'] * 10000)
             data['outputs'].sort(key=lambda socket: socket['index'] + socket['position'] * 10000)

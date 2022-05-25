@@ -16,6 +16,7 @@ class rectangle_inout(QtWidgets.QGraphicsRectItem):
         self.scene = scene
 
 class Node(Serializable):
+    icon = "."
 
     def __init__(self, scene, title="Undefined Node", obj_title="Undefined", obj_port=None, obj_data=None, inputs=[], outputs=[]):
         super().__init__()
@@ -166,7 +167,7 @@ class Node(Serializable):
             #scene_position = node.scene.grScene.views()[0].mapToScene(mouse_position.toPoint())
             scene_position = mouse_position
             # Left corner
-            if "CalcNode_some_thing_in" in node_type:
+            if "CalcNode_some_thing_in" in node_type or "_Input" in node_type:
                 # Знаем расположение левого края в программе
                 views = self.scene.grScene.views()
                 geometry_view = views[0].geometry()
@@ -177,7 +178,7 @@ class Node(Serializable):
                 new_y = scene_position.y()
                 self.setPos(new_x, new_y)
             # Right corner
-            elif "CalcNode_some_thing_out" in node_type:
+            elif "CalcNode_some_thing_out" in node_type or "_Output" in node_type:
                 # Знаем расположение правого края в программе
                 views = self.scene.grScene.views()
                 geometry_view = views[0].geometry()
@@ -368,6 +369,7 @@ class Node(Serializable):
         return OrderedDict([
             ('id', self.id),
             ('title', self.op_title),
+            ('icon', self.icon),
             ('obj_title', self.obj_title),
             ('obj_port', self.obj_port),
             ('obj_data', self.obj_data),
@@ -415,6 +417,9 @@ class Node(Serializable):
 
             if 'obj_port' in data and data["obj_port"] is not None:
                 self.obj_data = data["obj_port"]
+
+            if 'icon' in data and data["icon"] is not None:
+                self.icon = data["icon"]
 
             return self
         except Exception as e: dumpException(e)
