@@ -1,0 +1,134 @@
+{
+    "id": 1213416488288,
+    "scene_width": 64000,
+    "scene_height": 64000,
+    "nodes": [
+        {
+            "id": 1213523705328,
+            "title": "\u0434\u0430\u0442\u0447\u0438\u043a \u0434\u0432\u0438\u0436\u0435\u043d\u0438\u044f",
+            "obj_title": "T4",
+            "obj_port": "GPIO_Digital_4",
+            "obj_data": null,
+            "pos_x": -661.25,
+            "pos_y": -144.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 1213523768128,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 3
+                }
+            ],
+            "content": {
+                "value": "1"
+            },
+            "op_code": 4,
+            "name_class": "calc_node_some_thing_in"
+        },
+        {
+            "id": 1213523784848,
+            "title": "\u0421\u0432\u0435\u0442\u043e\u0434\u0438\u043e\u0434",
+            "obj_title": "T5",
+            "obj_port": "GPIO_Digital_18",
+            "obj_data": null,
+            "pos_x": 372.5,
+            "pos_y": -147.0,
+            "inputs": [
+                {
+                    "id": 1213523784656,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 1
+                }
+            ],
+            "outputs": [],
+            "content": {},
+            "op_code": 5,
+            "name_class": "calc_node_some_thing_out"
+        },
+        {
+            "id": 1213523784512,
+            "title": "\u0411\u043e\u043b\u044c\u0448\u0435",
+            "obj_title": "GT1",
+            "obj_port": null,
+            "obj_data": null,
+            "pos_x": -123.0,
+            "pos_y": -86.0,
+            "inputs": [
+                {
+                    "id": 1213523784320,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 2
+                },
+                {
+                    "id": 1213523784176,
+                    "index": 1,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 2
+                }
+            ],
+            "outputs": [
+                {
+                    "id": 1213523784128,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 1
+                }
+            ],
+            "content": {},
+            "op_code": 8,
+            "name_class": "calc_node_bg"
+        },
+        {
+            "id": 1213536086768,
+            "title": "\u0412\u0445\u043e\u0434\u043d\u043e\u0435",
+            "obj_title": "I1",
+            "obj_port": null,
+            "obj_data": null,
+            "pos_x": -423.00000000000006,
+            "pos_y": -14.75,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 1213536087008,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 3
+                }
+            ],
+            "content": {
+                "value": "0"
+            },
+            "op_code": 1,
+            "name_class": "calc_node_input"
+        }
+    ],
+    "edges": [
+        {
+            "id": 1213523784800,
+            "edge_type": 2,
+            "start": 1213523768128,
+            "end": 1213523784320
+        },
+        {
+            "id": 1213523784944,
+            "edge_type": 2,
+            "start": 1213536087008,
+            "end": 1213523784176
+        },
+        {
+            "id": 1213536087536,
+            "edge_type": 2,
+            "start": 1213523784128,
+            "end": 1213523784656
+        }
+    ]
+}

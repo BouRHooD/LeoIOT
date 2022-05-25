@@ -56,6 +56,9 @@ class CalcNode_some_thing_in(CalcNode):
         self.grNode = CalcGraphicsNode(self)
         self.content.edit.textChanged.connect(self.onInputChanged)
 
+    def setText(self, _text):
+        self.content.edit.setText(_text)
+
     def evalImplementation(self):
         u_value = self.content.edit.text()
         s_value = int(u_value)

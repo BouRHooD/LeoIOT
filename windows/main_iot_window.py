@@ -33,6 +33,7 @@ class MainIOTWindow(NodeEditorWindow):
         self.name_product = 'Шлюз интернет вещей'
 
         self.ON_OFF_SEND_DATA = False
+        self.ON_OFF_GPIO_PORTS = False
 
         self.stylesheet_filename = self.DIR_CSS + "nodeeditor.qss"
         loadStylesheets(
@@ -276,11 +277,13 @@ class MainIOTWindow(NodeEditorWindow):
         self.thingListWidget.addMyItem(name='Вентилятор',  icon=self.DIR_ICONS + 'icon-fan-877921.png', op_code=14, obj_title="T3", thing_in=False)
 
         self.ON_OFFsendButton_tw = QtWidgets.QPushButton("Включить отправку на сервера", clicked=self.ON_OFFsendDataTW)
+        self.ON_OFF_GPIO_PORTS_button = QtWidgets.QPushButton("Включить работу с портами", clicked=self.on_off_gpio_ports)
         self.addButton = QtWidgets.QPushButton(text='Добавить вещь', clicked=self.addThing_element)
         self.delButton = QtWidgets.QPushButton(text='Удалить вещь', clicked=self.deleteThing_element)
 
         self.layout_things = QtWidgets.QBoxLayout(2)
         self.layout_things.addWidget(self.ON_OFFsendButton_tw)
+        self.layout_things.addWidget(self.ON_OFF_GPIO_PORTS_button)
         self.layout_things.addWidget(self.thingListWidget)
         self.layout_things.addWidget(self.addButton)
         self.layout_things.addWidget(self.delButton)
@@ -338,6 +341,56 @@ class MainIOTWindow(NodeEditorWindow):
             self.ON_OFF_SEND_DATA = True
             self.ON_OFFsendButton_tw.setText("Отключить отправку на сервера")
             self.sendDataTW()
+
+    def on_off_gpio_ports(self):
+        if self.ON_OFF_GPIO_PORTS:
+            self.ON_OFF_GPIO_PORTS = False
+            self.ON_OFF_GPIO_PORTS_button.setText("Включить работу с портами")
+        else:
+            self.ON_OFF_GPIO_PORTS = True
+            self.ON_OFF_GPIO_PORTS_button.setText("Отключить работу с портами")
+            pool_gpio = Pool()
+            pool_gpio.apply_async(self.call_gpio_poll)
+
+    def call_gpio_poll(self):
+        while self.ON_OFF_GPIO_PORTS:
+            try:
+                list_dict_data = self.getDictDataForGPIO()
+                try:
+                    import RPi.GPIO as GPIO
+                    # GPIO.BCM - будет использоваться нумерация GPIO
+                    # GPIO.BOARD - будет использоваться нумерация пинов P1-26
+                    GPIO.setmode(GPIO.BCM)
+
+                    for dict_data in list_dict_data:
+                        select_node = dict_data["node"]
+                        select_type_node = dict_data["select_type_node"]
+                        select_type_port = dict_data["select_type_port"]
+                        select_num_port = int(dict_data["select_num_port"])
+
+                        if select_type_node == "input" and select_type_port == "digital":
+                            pass
+                            # Конфигурируем GPIO как вход
+                            GPIO.setup(select_num_port, GPIO.IN)
+                            # Считываем сигнал с GPIO 8 в переменную pin_signal_input
+                            pin_signal_input = GPIO.input(select_num_port)
+                            print(f'pin_signal_input: {pin_signal_input}')
+                            select_node.setText(pin_signal_input)
+                            select_node.evalImplementation()
+                        elif select_type_node == "output" and select_type_port == "digital":
+                            # Конфигурируем GPIO как выход
+                            GPIO.setup(select_num_port, GPIO.OUT)
+                            node_select_value = select_node.evalImplementation()
+                            value_bool = bool(node_select_value)
+                            # Выводим на GPIO 7 логическую "1" (3.3 V) или логический "0"
+                            GPIO.output(select_num_port, value_bool)
+                except Exception as ex:
+                    print(ex)
+                finally:
+                    pass
+            except Exception as ex:
+                print(ex)
+            time.sleep(3)
 
 
     def sendDataTW(self):
@@ -452,6 +505,36 @@ class MainIOTWindow(NodeEditorWindow):
                             scene_node.eval()
 
                             list_dict_data.append({'url': url, 'headers': headers, 'data': outDict, 'node': scene_node})
+                break
+
+        return list_dict_data
+
+    def getDictDataForGPIO(self):
+        outDict = {}
+
+        list_dict_data = []
+        for thing_index in THING_NODES:
+            thing_node = THING_NODES.get(thing_index)
+            if hasattr(thing_node, 'scene') and hasattr(thing_node.scene, 'nodes') and len(thing_node.scene.nodes) > 0:
+                for scene_node in thing_node.scene.nodes:
+                    node_lbl = scene_node.content_label_objname
+                    if 'calc_node_some_thing' in node_lbl:
+                        if hasattr(scene_node, 'obj_port') and scene_node.obj_port is not None:
+                            node_port_str = scene_node.obj_port
+                            node_port_lower = str(node_port_str).lower()
+                            select_type_port, select_type_node, select_num_port = None, None, None
+                            if 'digital' in node_port_lower:
+                                if 'calc_node_some_thing_in' in node_lbl:
+                                    select_type_node = 'input'
+                                if 'calc_node_some_thing_out' in node_lbl:
+                                    select_type_node = 'output'
+                                select_type_port = "digital"
+                                select_num_port = node_port_lower.replace("gpio_digital_", "")
+
+                            list_dict_data.append({'node': scene_node,
+                                                   'select_type_node': select_type_node,
+                                                   'select_type_port': select_type_port,
+                                                   'select_num_port': select_num_port})
                 break
 
         return list_dict_data
