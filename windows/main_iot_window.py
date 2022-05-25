@@ -363,6 +363,7 @@ class MainIOTWindow(NodeEditorWindow):
                     GPIO.setmode(GPIO.BCM)
 
                     for dict_data in list_dict_data:
+                        print(dict_data)
                         select_node = dict_data["node"]
                         select_type_node = dict_data["select_type_node"]
                         select_type_port = dict_data["select_type_port"]
@@ -385,11 +386,11 @@ class MainIOTWindow(NodeEditorWindow):
                             # Выводим на GPIO 7 логическую "1" (3.3 V) или логический "0"
                             GPIO.output(select_num_port, value_bool)
                 except Exception as ex:
-                    print(ex)
+                    dumpException(ex)
                 finally:
                     pass
             except Exception as ex:
-                print(ex)
+                dumpException(ex)
             time.sleep(1)
 
 
@@ -446,7 +447,7 @@ class MainIOTWindow(NodeEditorWindow):
                     self.last_node.value = "Error"
                     self.last_node.markDirty()
                     self.last_node.eval()
-                print(ex)
+                dumpException(ex)
             time.sleep(1)
 
     def getDictDataForSendToServer(self):

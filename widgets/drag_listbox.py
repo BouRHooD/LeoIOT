@@ -58,36 +58,45 @@ class QDMDragListbox(QListWidget):
             self.addMyItem(name=node.op_title, icon=node.icon, op_code=node.op_code)
 
     def addMyItem(self, name, icon=None, op_code=0, obj_title="T0", obj_port=None, thing_in=True):
-        if op_code not in self.SOME_NODES:
-            from nodes.some_thing import CalcNode_some_thing_in
-            from nodes.some_thing import CalcNode_some_thing_out
-            if thing_in:
-                new_class = CalcNode_some_thing_in(scene=None, icon=str(icon), op_code=int(op_code), op_title=str(name),
-                                                   obj_title=str(obj_title), obj_port=str(obj_port))
+        try:
+            if op_code not in self.SOME_NODES:
+                from nodes.some_thing import CalcNode_some_thing_in
+                from nodes.some_thing import CalcNode_some_thing_out
+                if thing_in:
+                    new_class = CalcNode_some_thing_in(scene=None, icon=str(icon), op_code=int(op_code), op_title=str(name),
+                                                       obj_title=str(obj_title), obj_port=str(obj_port))
+                else:
+                    new_class = CalcNode_some_thing_out(scene=None, icon=str(icon), op_code=int(op_code), op_title=str(name),
+                                                        obj_title=str(obj_title), obj_port=str(obj_port))
+                new_register_node = register_node(int(op_code), self.SOME_NODES, new_class)
+                self.SOME_NODES.update({int(op_code): new_register_node})
+
+            if self.checkable:
+                item_text = f"({obj_title}) {name}"
             else:
-                new_class = CalcNode_some_thing_out(scene=None, icon=str(icon), op_code=int(op_code), op_title=str(name),
-                                                    obj_title=str(obj_title), obj_port=str(obj_port))
-            new_register_node = register_node(int(op_code), self.SOME_NODES, new_class)
-            self.SOME_NODES.update({int(op_code): new_register_node})
+                item_text = f"{name}"
 
-        if self.checkable:
-            item_text = f"({obj_title}) {name}"
-        else:
-            item_text = f"{name}"
-        item = QListWidgetItem(item_text, self) # can be (icon, text, parent, <int>type)
-        pixmap = QPixmap(icon if icon is not None else ".")
-        item.setIcon(QIcon(pixmap))
-        item.setSizeHint(QSize(32, 32))
+            # Если было сохранено на ПК с windows
+            if 'C:\\Users' in icon:
+                filename, file_extension = os.path.splitext(icon)
+                icon = DIR_ICONS + filename + file_extension
 
-        if self.checkable:
-            item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled | Qt.ItemIsUserCheckable)
-            item.setCheckState(Qt.Unchecked)
-        else:
-            item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled)
+            item = QListWidgetItem(item_text, self) # can be (icon, text, parent, <int>type)
+            pixmap = QPixmap(icon if icon is not None else ".")
+            item.setIcon(QIcon(pixmap))
+            item.setSizeHint(QSize(32, 32))
 
-        # setup data
-        item.setData(Qt.UserRole, pixmap)
-        item.setData(Qt.UserRole + 1, int(op_code))
+            if self.checkable:
+                item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled | Qt.ItemIsUserCheckable)
+                item.setCheckState(Qt.Unchecked)
+            else:
+                item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsDragEnabled)
+
+            # setup data
+            item.setData(Qt.UserRole, pixmap)
+            item.setData(Qt.UserRole + 1, int(op_code))
+        except Exception as ex:
+            dumpException(ex)
 
     def startDrag(self, *args, **kwargs):
         try:

@@ -1,4 +1,11 @@
+import os
+import sys
+
 LISTBOX_MIMETYPE = "application/x-item"
+
+DIR_MAIN = os.path.dirname(os.path.abspath(str(sys.modules['__main__'].__file__))).replace("\\", "/")
+DIR_ICONS = DIR_MAIN + "/styles/icons" + "/"
+DIR_CSS = DIR_MAIN + "/styles/qss" + "/"
 
 OP_NODE_INPUT = 1
 OP_NODE_OUTPUT = 2
