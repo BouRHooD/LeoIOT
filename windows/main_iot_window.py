@@ -390,7 +390,7 @@ class MainIOTWindow(NodeEditorWindow):
                     pass
             except Exception as ex:
                 print(ex)
-            time.sleep(3)
+            time.sleep(1)
 
 
     def sendDataTW(self):
