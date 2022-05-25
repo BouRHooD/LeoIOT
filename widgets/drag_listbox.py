@@ -60,6 +60,14 @@ class QDMDragListbox(QListWidget):
     def addMyItem(self, name, icon=None, op_code=0, obj_title="T0", obj_port=None, thing_in=True):
         try:
             if op_code not in self.SOME_NODES:
+
+                print(icon)
+                # Если было сохранено на ПК с windows
+                if icon is not None and 'C:\\Users' in icon:
+                    filename, file_extension = os.path.splitext(icon)
+                    icon = DIR_ICONS + filename + file_extension
+                    print(icon)
+
                 from nodes.some_thing import CalcNode_some_thing_in
                 from nodes.some_thing import CalcNode_some_thing_out
                 if thing_in:
@@ -75,11 +83,6 @@ class QDMDragListbox(QListWidget):
                 item_text = f"({obj_title}) {name}"
             else:
                 item_text = f"{name}"
-
-            # Если было сохранено на ПК с windows
-            if 'C:\\Users' in icon:
-                filename, file_extension = os.path.splitext(icon)
-                icon = DIR_ICONS + filename + file_extension
 
             item = QListWidgetItem(item_text, self) # can be (icon, text, parent, <int>type)
             pixmap = QPixmap(icon if icon is not None else ".")
