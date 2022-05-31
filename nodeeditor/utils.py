@@ -21,8 +21,12 @@ def loadStylesheet(filename):
 def loadStylesheets(*args):
     res = ''
     for arg in args:
-        file = QFile(arg)
-        file.open(QFile.ReadOnly | QFile.Text)
-        stylesheet = file.readAll()
-        res += "\n" + str(stylesheet, encoding='utf-8')
+        try:
+            file = QFile(arg)
+            file.open(QFile.ReadOnly | QFile.Text)
+            stylesheet = file.readAll()
+            res += "\n" + str(stylesheet, encoding='utf-8')
+            print('STYLE loading:', arg)
+        except:
+            print('STYLE loading error')
     QApplication.instance().setStyleSheet(res)

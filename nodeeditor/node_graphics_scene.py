@@ -17,16 +17,16 @@ class QDMGraphicsScene(QGraphicsScene):
         self.gridSize = 20
         self.gridSquares = 5
 
-        self._color_background = QColor("#393938")
-        self._color_light = QColor("#2f2f2f")
-        self._color_dark = QColor("#292929")
+        self.scene_color_background = QColor("#4f4f4e")
+        self.scene_color_light = QColor("#464646")
+        self.scene_color_dark = QColor("#404040")
 
-        self._pen_light = QPen(self._color_light)
+        self._pen_light = QPen(self.scene_color_light)
         self._pen_light.setWidth(1)
-        self._pen_dark = QPen(self._color_dark)
+        self._pen_dark = QPen(self.scene_color_dark)
         self._pen_dark.setWidth(2)
 
-        self.setBackgroundBrush(self._color_background)
+        self.setBackgroundBrush(self.scene_color_background)
 
     # the drag events won't be allowed until dragMoveEvent is overriden
     def dragMoveEvent(self, event):
