@@ -1,0 +1,200 @@
+{
+    "id": 2261392279632,
+    "scene_width": 64000,
+    "scene_height": 64000,
+    "nodes": [
+        {
+            "id": 2261452734576,
+            "title": "Blynk IoT",
+            "icon": "C:/Users/Surflay/OneDrive/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/\u0416\u0438\u0437\u043d\u044c/\u0423\u043d\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442/\u0414\u0438\u043f\u043b\u043e\u043c 2/LeoIOT/styles/icons/blynkio_logo.png",
+            "obj_title": "BI1",
+            "obj_port": null,
+            "obj_data": {
+                "server_name": "blynk.cloud",
+                "thing_name": "TMPL-hp3GKo5",
+                "service_name": "Quickstart Template",
+                "appkey_data": "HzHQ3uHcffoAW7cJzsv1gcddFnmzTMEP"
+            },
+            "pos_x": 300.0,
+            "pos_y": -177.0,
+            "inputs": [
+                {
+                    "id": 2261452734816,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 0
+                }
+            ],
+            "outputs": [],
+            "content": {},
+            "op_code": 18,
+            "name_class": "node_blynkio_obj"
+        },
+        {
+            "id": 2261452734768,
+            "title": "Blynk IoT",
+            "icon": "C:/Users/Surflay/OneDrive/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/\u0416\u0438\u0437\u043d\u044c/\u0423\u043d\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442/\u0414\u0438\u043f\u043b\u043e\u043c 2/LeoIOT/styles/icons/blynkio_logo.png",
+            "obj_title": "BI1",
+            "obj_port": null,
+            "obj_data": {
+                "server_name": "blynk.cloud",
+                "thing_name": "TMPL-hp3GKo5",
+                "service_name": "Quickstart Template",
+                "appkey_data": "HzHQ3uHcffoAW7cJzsv1gcddFnmzTMEP"
+            },
+            "pos_x": -487.0,
+            "pos_y": -262.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 2261452735104,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 0
+                }
+            ],
+            "content": {},
+            "op_code": 18,
+            "name_class": "node_blynkio_obj"
+        },
+        {
+            "id": 2157636593072,
+            "title": "\u0412\u0435\u0449\u044c #4",
+            "icon": "C:/Users/Surflay/OneDrive/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/\u0416\u0438\u0437\u043d\u044c/\u0423\u043d\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442/\u0414\u0438\u043f\u043b\u043e\u043c 2/LeoIOT/styles/icons/settings.png",
+            "obj_title": "v10",
+            "obj_port": "GPIO_Digital_4",
+            "obj_data": null,
+            "pos_x": -487.0,
+            "pos_y": 2.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 2261452907808,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 3
+                }
+            ],
+            "content": {
+                "value": "1"
+            },
+            "op_code": 4,
+            "name_class": "calc_node_some_thing_in"
+        },
+        {
+            "id": 2157574409904,
+            "title": "\u041b\u0430\u043c\u043f\u0430",
+            "icon": "C:/Users/Surflay/OneDrive/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/\u0416\u0438\u0437\u043d\u044c/\u0423\u043d\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442/\u0414\u0438\u043f\u043b\u043e\u043c 2/LeoIOT/styles/icons/icon-lightbulb-673876.png",
+            "obj_title": "T2",
+            "obj_port": "None",
+            "obj_data": null,
+            "pos_x": 300.0,
+            "pos_y": -11.0,
+            "inputs": [
+                {
+                    "id": 2261392204464,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 1
+                }
+            ],
+            "outputs": [],
+            "content": {},
+            "op_code": 13,
+            "name_class": "calc_node_some_thing_out"
+        },
+        {
+            "id": 2157692287584,
+            "title": "\u0420\u0430\u0432\u043d\u043e",
+            "icon": "C:/Users/Surflay/OneDrive/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/\u0416\u0438\u0437\u043d\u044c/\u0423\u043d\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442/\u0414\u0438\u043f\u043b\u043e\u043c 2/LeoIOT/styles/icons/equals.png",
+            "obj_title": "LT1",
+            "obj_port": null,
+            "obj_data": null,
+            "pos_x": -164.0,
+            "pos_y": -199.0,
+            "inputs": [
+                {
+                    "id": 2157692287968,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 2
+                },
+                {
+                    "id": 2157692288112,
+                    "index": 1,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 2
+                }
+            ],
+            "outputs": [
+                {
+                    "id": 2157692288160,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 1
+                }
+            ],
+            "content": {},
+            "op_code": 16,
+            "name_class": "calc_node_bg"
+        },
+        {
+            "id": 2157692287920,
+            "title": "\u0412\u0445\u043e\u0434\u043d\u043e\u0435",
+            "icon": "C:/Users/Surflay/OneDrive/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/\u0416\u0438\u0437\u043d\u044c/\u0423\u043d\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442/\u0414\u0438\u043f\u043b\u043e\u043c 2/LeoIOT/styles/icons/in_b.png",
+            "obj_title": "I1",
+            "obj_port": null,
+            "obj_data": null,
+            "pos_x": -487.0,
+            "pos_y": -143.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 2157692288448,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 3
+                }
+            ],
+            "content": {
+                "value": "1"
+            },
+            "op_code": 1,
+            "name_class": "calc_node_input"
+        }
+    ],
+    "edges": [
+        {
+            "id": 2261452907040,
+            "edge_type": 2,
+            "start": 2261452907808,
+            "end": 2261452734816
+        },
+        {
+            "id": 2157636687376,
+            "edge_type": 2,
+            "start": 2261452735104,
+            "end": 2157692287968
+        },
+        {
+            "id": 2157692287536,
+            "edge_type": 2,
+            "start": 2157692288448,
+            "end": 2157692288112
+        },
+        {
+            "id": 2157692288544,
+            "edge_type": 2,
+            "start": 2157692288160,
+            "end": 2261392204464
+        }
+    ]
+}

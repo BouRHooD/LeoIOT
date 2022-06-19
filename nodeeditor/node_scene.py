@@ -183,7 +183,6 @@ class Scene(Serializable):
 
         # create nodes
         for node_data in data['nodes']:
-
             # Перед добавлением на сцену, добавляем в лист вещей, если такой ноды нет
             if "name_class" in node_data and 'node_some_thing' in node_data["name_class"] and "op_code" in node_data:
                 thingListWidget = self.thingListChanged
@@ -223,6 +222,13 @@ class Scene(Serializable):
         for edge_data in data['edges']:
             Edge(self).deserialize(edge_data, hashmap, restore_id)
 
+        # Загружаем параметры входных данных
+        # Если нет имён у входных/выходных параметров, то добавляем их из параметра obj_title
+        # Текущей список нод на сцене
+        list_nodes = self.nodes
+        for select_node in list_nodes:
+            select_node.createInParam()
+
         return True
 
     def deserialize_node(self, node, data, hashmap={}, restore_id=True):
@@ -237,6 +243,14 @@ class Scene(Serializable):
                 node.title(data['title'], data['obj_title'], data['obj_port'])
             else:
                 node.title(data['title'], data['obj_title'])
+
+            # Если нет имён у входных/выходных параметров, то добавляем их из параметра obj_title
+            if hasattr(node, 'outputs_names') and (node.outputs_names is None or len(node.outputs_names) <= 0):
+                new_list = []
+                for _index in range(len(node.outputs)):
+                    if hasattr(node, 'obj_title') and node.obj_title is not None:
+                        new_list.append(node.obj_title)
+                node.outputs_names = new_list
 
             data['inputs'].sort(key=lambda socket: socket['index'] + socket['position'] * 10000)
             data['outputs'].sort(key=lambda socket: socket['index'] + socket['position'] * 10000)

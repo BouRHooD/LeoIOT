@@ -252,11 +252,52 @@ class MainIOTWindow(NodeEditorWindow):
     def createToolBars(self):
         pass
 
+    def changeComboLogic(self, str):
+        copy_dict = CALC_NODES
+        new_dict = {}
+        if str == "Основные операции":
+            for key in copy_dict:
+                item = copy_dict.get(key)
+                if item is not None and item.content_label_objname not in iot_list:
+                    new_dict[key] = item
+            self.nodesListWidget.clear()
+            keys = list(new_dict.keys())
+            keys.sort()
+            for key in keys:
+                node = get_class_from_opcode(key, new_dict)
+                self.nodesListWidget.addMyItem(name=node.op_title, icon=node.icon, op_code=node.op_code)
+        elif str == "Платформы интернета вещей":
+            for key in copy_dict:
+                item = copy_dict.get(key)
+                if item is not None and item.content_label_objname in iot_list:
+                    new_dict[key] = item
+            self.nodesListWidget.clear()
+            keys = list(new_dict.keys())
+            keys.sort()
+            for key in keys:
+                node = get_class_from_opcode(key, new_dict)
+                self.nodesListWidget.addMyItem(name=node.op_title, icon=node.icon, op_code=node.op_code)
+        else:
+            self.nodesListWidget.clear()
+            keys = list(CALC_NODES.keys())
+            keys.sort()
+            for key in keys:
+                node = get_class_from_opcode(key, CALC_NODES)
+                self.nodesListWidget.addMyItem(name=node.op_title, icon=node.icon, op_code=node.op_code)
+        QtCore.QCoreApplication.processEvents()
+
     def createNodesDock(self):
         # "Логические узлы"
         self.nodesListWidget = QDMDragListbox(SOME_NODES=CALC_NODES)
 
+        self.comboLogic = QComboBox(self)
+        self.comboLogic.addItem("Основные операции")
+        self.comboLogic.addItem("Платформы интернета вещей")
+        self.comboLogic.currentTextChanged.connect(self.changeComboLogic)
+        self.changeComboLogic("Основные операции")
+
         self.layout_logic = QtWidgets.QBoxLayout(2)
+        self.layout_logic.addWidget(self.comboLogic)
         self.layout_logic.addWidget(self.nodesListWidget)
 
         self.dockedWidget = QtWidgets.QWidget()
@@ -265,8 +306,8 @@ class MainIOTWindow(NodeEditorWindow):
         self.nodesDock = QDockWidget("Логические узлы")
         self.nodesDock.setFloating(True)
         self.nodesDock.setWidget(self.dockedWidget)
-
         self.addDockWidget(Qt.LeftDockWidgetArea, self.nodesDock)
+
 
         # "Узлы подключенных вещей"
         self.thingListWidget = QDMDragListbox(SOME_NODES=THING_NODES, checkable=False)
@@ -425,37 +466,77 @@ class MainIOTWindow(NodeEditorWindow):
                     headers = dict_data["headers"]
                     data = dict_data["data"]
                     node = dict_data["node"]
+                    node_in = dict_data["node_in"]
+                    node_out = dict_data["node_out"]
                     self.last_node = node
 
-                    response = None
+                    if node_out is not None:
+                        node_out.content_label = url + "\n" + str(data)
+                        node_out.markDirty()
+                        node_out.eval()
 
+                    response, node_lbl = None, ""
                     node_lbl = node.content_label_objname
                     if "node_thingworx_obj" in node_lbl:
                         response = requests.put(url, headers=headers, json=data)
                     elif "node_fogwing_iiot_obj" in node_lbl:
                         response = requests.post(url, headers=headers, json=data)
+                    elif "node_blynkio_obj" in node_lbl:
+                        response = requests.get(url, params=data)
 
                     print(f'Data send: {dict_data}')
 
                     if response is not None:
-                        node.value = "Code:" + str(response.status_code) + "\n" + "Content:" + str(response.content)
-                        node.markDirty()
-                        node.eval()
+                        if "node_blynkio_obj" in node_lbl and "update" in url:
+                            pass
+                        else:
+                            node_in.content_label = "Code:" + str(response.status_code) + "\n" + "Content:" + str(response.content)
+                            node_in.value = "Code:" + str(response.status_code) + "\n" + "Content:" + str(response.content)
+                            node_in.markDirty()
+                            node_in.eval()
 
                         print(f'Response Code: {response.status_code}')
                         print(f'Response Content: {response.content}')
                         print(f'------------------------------------------------------------')
                     else:
-                        node.value = "Error"
-                        node.markDirty()
-                        node.eval()
+                        node_in.value = "Error"
+                        node_in.markDirty()
+                        node_in.eval()
             except Exception as ex:
                 if self.last_node is not None:
                     self.last_node.value = "Error"
                     self.last_node.markDirty()
                     self.last_node.eval()
                 dumpException(ex)
-            time.sleep(1)
+            finally:
+                time.sleep(1)
+
+    def getIOTNodes(self, nodes, scene_node, node_lbl):
+        node_in, node_out = None, None
+        if len(scene_node.inputs) <= 0 and len(scene_node.outputs) > 0:
+            node_in = scene_node
+
+            # Ищем вторую ноду
+            for scene_node_out in nodes:
+                node_lbl_out = scene_node_out.content_label_objname
+                if node_lbl_out in iot_list and node_lbl_out == node_lbl:
+                    if hasattr(scene_node_out, 'obj_data') and scene_node_out.obj_data is not None \
+                            and scene_node_out.obj_data == scene_node.obj_data and scene_node_out != scene_node:
+                        node_out = scene_node_out
+                        break
+        elif len(scene_node.inputs) > 0 and len(scene_node.outputs) <= 0:
+            node_out = scene_node
+            # Ищем вторую ноду
+            for scene_node_in in nodes:
+                node_lbl_in = scene_node_in.content_label_objname
+                if node_lbl_in in iot_list and node_lbl_in == node_lbl:
+                    if hasattr(scene_node_in, 'obj_data') and scene_node_in.obj_data is not None \
+                            and scene_node_in.obj_data == scene_node.obj_data and scene_node_in != scene_node:
+                        node_in = scene_node_in
+                        break
+
+        dict_iot_nodes = ({'node_in': node_in, 'node_out': node_out})
+        return dict_iot_nodes
 
     def getDictDataForSendToServer(self):
         url = None
@@ -471,12 +552,16 @@ class MainIOTWindow(NodeEditorWindow):
             if hasattr(thing_node, 'scene') and hasattr(thing_node.scene, 'nodes') and len(thing_node.scene.nodes) > 0:
                 for scene_node in thing_node.scene.nodes:
                     node_lbl = scene_node.content_label_objname
-                    if node_lbl in ['node_thingworx_obj', "node_fogwing_iiot_obj"]:
+                    if node_lbl in iot_list:
                         if hasattr(scene_node, 'obj_data') and scene_node.obj_data is not None:
                             server_name = scene_node.obj_data["server_name"]
                             thing_name = scene_node.obj_data["thing_name"]
                             service_name = scene_node.obj_data["service_name"]
                             appkey_data = scene_node.obj_data["appkey_data"]
+
+                            iot_nodes = self.getIOTNodes(thing_node.scene.nodes, scene_node, node_lbl)
+                            node_in = iot_nodes['node_in']
+                            node_out = iot_nodes['node_out']
 
                             if 'node_thingworx_obj' in node_lbl:
                                 url = 'https://' + server_name + ':8443/Thingworx/Things/' + thing_name + '/Services/' + service_name
@@ -498,21 +583,35 @@ class MainIOTWindow(NodeEditorWindow):
                                     'Accept': 'application/json',
                                 }
 
-                            node_inputs = scene_node.inputs
-                            for node_input in node_inputs:
-                                start_node = node_input.edges[0].start_socket.node
-                                end_node = node_input.edges[0].end_socket.node
-                                if start_node.content_label_objname not in ['node_thingworx_obj', "node_fogwing_iiot_obj"]:
-                                    outDict[f'{start_node.obj_title}'] = f"{start_node.value}"
-                                elif end_node.content_label_objname not in ['node_thingworx_obj', "node_fogwing_iiot_obj"]:
-                                    outDict[f'{end_node.obj_title}'] = f"{end_node.value}"
+                            if 'node_blynkio_obj' in node_lbl:
+                                # https://blynk.cloud/external/api/update?token=ffujYGgbf805tgsf&v1=100
+                                if node_out == scene_node:
+                                    url = 'https://' + server_name + '/external/api/update?token=' + appkey_data
+                                elif node_in == scene_node:
+                                    url = 'https://' + server_name + '/external/api/get?token=' + appkey_data
 
-                            scene_node.content_label = url + "\n" + str(outDict)
-                            #scene_node.value = outDict
-                            scene_node.markDirty()
-                            scene_node.eval()
+                                headers = {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                }
 
-                            list_dict_data.append({'url': url, 'headers': headers, 'data': outDict, 'node': scene_node})
+                            if node_out == scene_node:
+                                node_inputs = scene_node.inputs
+                                for node_input in node_inputs:
+                                    if len(node_input.edges) <= 0:
+                                        continue
+                                    start_node = node_input.edges[0].start_socket.node
+                                    end_node = node_input.edges[0].end_socket.node
+                                    if start_node.content_label_objname not in iot_list:
+                                        outDict[f'{start_node.obj_title}'] = f"{start_node.value}"
+                                    elif end_node.content_label_objname not in iot_list:
+                                        outDict[f'{end_node.obj_title}'] = f"{end_node.value}"
+
+                            if node_in == scene_node:
+                                pass
+
+                            list_dict_data.append({'url': url, 'headers': headers, 'data': outDict, 'node': scene_node,
+                                                   'node_in': node_in, 'node_out': node_out})
                 break
 
         return list_dict_data

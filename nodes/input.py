@@ -75,8 +75,46 @@ class node_fogwing_iiot(CalcNode):
     obj_data = None
     obj_string = None
 
-    def __init__(self, scene):
-        super().__init__(scene, inputs=[], outputs=[3])
+    def __init__(self, scene, inputs=[], outputs=[]):
+        super().__init__(scene, inputs=inputs, outputs=outputs)
+        self.eval()
+
+    def initInnerClasses(self):
+        from nodes.output import CalcOutputContent
+        self.content = CalcOutputContent(self)
+        self.grNode = CalcGraphicsNode(self)
+
+    def evalImplementation(self):
+        u_value = self.value
+
+        self.value = u_value
+        self.markDirty(False)
+        self.markInvalid(False)
+
+        self.markDescendantsInvalid(False)
+        self.markDescendantsDirty()
+
+        self.grNode.setToolTip("")
+
+        self.evalChildren()
+
+        self.content.lbl.setText("%s" % self.content_label)
+        return self.value
+
+
+@register_node(dict_OP_NODES.get("node_blynkio"), CALC_NODES)
+class node_blynkio(CalcNode):
+    icon = DIR_ICONS + "blynkio_logo.png"
+    op_code = dict_OP_NODES.get("node_blynkio")
+    op_title = "Blynk IoT"
+    obj_title = "BI1"
+    content_label = "-----"
+    content_label_objname = "node_blynkio_obj"
+    obj_data = None
+    obj_string = None
+
+    def __init__(self, scene, inputs=[], outputs=[]):
+        super().__init__(scene, inputs=inputs, outputs=outputs)
         self.eval()
 
     def initInnerClasses(self):

@@ -1,0 +1,267 @@
+{
+    "id": 2182602710704,
+    "scene_width": 64000,
+    "scene_height": 64000,
+    "nodes": [
+        {
+            "id": 2182600705024,
+            "title": "\u0414\u0430\u0442\u0447\u0438\u043a \u043e\u0441\u0432\u0435\u0449\u0435\u043d\u043d\u043e\u0441\u0442\u0438",
+            "icon": "C:/Users/Surflay/OneDrive/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/\u0416\u0438\u0437\u043d\u044c/\u0423\u043d\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442/\u0414\u0438\u043f\u043b\u043e\u043c 2/LeoIOT/styles/icons/icon-brightness-1758514.png",
+            "obj_title": "T0",
+            "obj_port": "None",
+            "obj_data": null,
+            "pos_x": -522.0,
+            "pos_y": -177.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 2182600803520,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 3
+                }
+            ],
+            "content": {
+                "value": "80"
+            },
+            "op_code": 11,
+            "name_class": "calc_node_some_thing_in"
+        },
+        {
+            "id": 2182600803664,
+            "title": "\u0414\u0430\u0442\u0447\u0438\u043a \u0442\u0435\u043c\u043f\u0435\u0440\u0430\u0442\u0443\u0440\u044b",
+            "icon": "C:/Users/Surflay/OneDrive/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/\u0416\u0438\u0437\u043d\u044c/\u0423\u043d\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442/\u0414\u0438\u043f\u043b\u043e\u043c 2/LeoIOT/styles/icons/icon-temperature-sensor-1485456.png",
+            "obj_title": "T1",
+            "obj_port": "None",
+            "obj_data": null,
+            "pos_x": -522.0,
+            "pos_y": 72.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 2182600803760,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 3
+                }
+            ],
+            "content": {
+                "value": "30"
+            },
+            "op_code": 12,
+            "name_class": "calc_node_some_thing_in"
+        },
+        {
+            "id": 2182664072880,
+            "title": "\u0412\u0445\u043e\u0434\u043d\u043e\u0435",
+            "icon": "C:/Users/Surflay/OneDrive/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/\u0416\u0438\u0437\u043d\u044c/\u0423\u043d\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442/\u0414\u0438\u043f\u043b\u043e\u043c 2/LeoIOT/styles/icons/in_b.png",
+            "obj_title": "I1",
+            "obj_port": null,
+            "obj_data": null,
+            "pos_x": -522.0,
+            "pos_y": -68.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 2182664073120,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 3
+                }
+            ],
+            "content": {
+                "value": "70"
+            },
+            "op_code": 1,
+            "name_class": "calc_node_input"
+        },
+        {
+            "id": 2182664073072,
+            "title": "\u0412\u0445\u043e\u0434\u043d\u043e\u0435",
+            "icon": "C:/Users/Surflay/OneDrive/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/\u0416\u0438\u0437\u043d\u044c/\u0423\u043d\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442/\u0414\u0438\u043f\u043b\u043e\u043c 2/LeoIOT/styles/icons/in_b.png",
+            "obj_title": "I1",
+            "obj_port": null,
+            "obj_data": null,
+            "pos_x": -522.0,
+            "pos_y": 181.0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "id": 2182664155392,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 3
+                }
+            ],
+            "content": {
+                "value": "35"
+            },
+            "op_code": 1,
+            "name_class": "calc_node_input"
+        },
+        {
+            "id": 2182664155344,
+            "title": "\u0411\u043e\u043b\u044c\u0448\u0435",
+            "icon": "C:/Users/Surflay/OneDrive/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/\u0416\u0438\u0437\u043d\u044c/\u0423\u043d\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442/\u0414\u0438\u043f\u043b\u043e\u043c 2/LeoIOT/styles/icons/_betterIcon.png",
+            "obj_title": "GT1",
+            "obj_port": null,
+            "obj_data": null,
+            "pos_x": -166.0,
+            "pos_y": -114.0,
+            "inputs": [
+                {
+                    "id": 2182664155680,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 2
+                },
+                {
+                    "id": 2182664155824,
+                    "index": 1,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 2
+                }
+            ],
+            "outputs": [
+                {
+                    "id": 2182664155872,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 1
+                }
+            ],
+            "content": {},
+            "op_code": 8,
+            "name_class": "calc_node_bg"
+        },
+        {
+            "id": 2182664221312,
+            "title": "\u0411\u043e\u043b\u044c\u0448\u0435",
+            "icon": "C:/Users/Surflay/OneDrive/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/\u0416\u0438\u0437\u043d\u044c/\u0423\u043d\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442/\u0414\u0438\u043f\u043b\u043e\u043c 2/LeoIOT/styles/icons/_betterIcon.png",
+            "obj_title": "GT1",
+            "obj_port": null,
+            "obj_data": null,
+            "pos_x": -149.0,
+            "pos_y": 120.0,
+            "inputs": [
+                {
+                    "id": 2182664221552,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 2
+                },
+                {
+                    "id": 2182664221696,
+                    "index": 1,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 2
+                }
+            ],
+            "outputs": [
+                {
+                    "id": 2182664221744,
+                    "index": 0,
+                    "multi_edges": true,
+                    "position": 5,
+                    "socket_type": 1
+                }
+            ],
+            "content": {},
+            "op_code": 8,
+            "name_class": "calc_node_bg"
+        },
+        {
+            "id": 2182600803952,
+            "title": "\u041b\u0430\u043c\u043f\u0430",
+            "icon": "C:/Users/Surflay/OneDrive/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/\u0416\u0438\u0437\u043d\u044c/\u0423\u043d\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442/\u0414\u0438\u043f\u043b\u043e\u043c 2/LeoIOT/styles/icons/icon-lightbulb-673876.png",
+            "obj_title": "T2",
+            "obj_port": "None",
+            "obj_data": null,
+            "pos_x": 270.0,
+            "pos_y": -122.0,
+            "inputs": [
+                {
+                    "id": 2182602635728,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 1
+                }
+            ],
+            "outputs": [],
+            "content": {},
+            "op_code": 13,
+            "name_class": "calc_node_some_thing_out"
+        },
+        {
+            "id": 2182602635872,
+            "title": "\u0412\u0435\u043d\u0442\u0438\u043b\u044f\u0442\u043e\u0440",
+            "icon": "C:/Users/Surflay/OneDrive/\u0420\u0430\u0431\u043e\u0447\u0438\u0439 \u0441\u0442\u043e\u043b/\u0416\u0438\u0437\u043d\u044c/\u0423\u043d\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442/\u0414\u0438\u043f\u043b\u043e\u043c 2/LeoIOT/styles/icons/icon-fan-877921.png",
+            "obj_title": "T3",
+            "obj_port": "None",
+            "obj_data": null,
+            "pos_x": 270.0,
+            "pos_y": 135.0,
+            "inputs": [
+                {
+                    "id": 2182602636016,
+                    "index": 0,
+                    "multi_edges": false,
+                    "position": 2,
+                    "socket_type": 1
+                }
+            ],
+            "outputs": [],
+            "content": {},
+            "op_code": 14,
+            "name_class": "calc_node_some_thing_out"
+        }
+    ],
+    "edges": [
+        {
+            "id": 2182664156640,
+            "edge_type": 2,
+            "start": 2182600803520,
+            "end": 2182664155680
+        },
+        {
+            "id": 2182664156688,
+            "edge_type": 2,
+            "start": 2182664155824,
+            "end": 2182664073120
+        },
+        {
+            "id": 2182664221264,
+            "edge_type": 2,
+            "start": 2182600803760,
+            "end": 2182664221552
+        },
+        {
+            "id": 2182664221504,
+            "edge_type": 2,
+            "start": 2182664221696,
+            "end": 2182664155392
+        },
+        {
+            "id": 2182664222368,
+            "edge_type": 2,
+            "start": 2182664155872,
+            "end": 2182602635728
+        },
+        {
+            "id": 2182664222416,
+            "edge_type": 2,
+            "start": 2182664221744,
+            "end": 2182602636016
+        }
+    ]
+}

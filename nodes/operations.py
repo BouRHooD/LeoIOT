@@ -8,7 +8,7 @@ DIR_ICONS = DIR_MAIN + "/styles/icons" + "/"
 DIR_CSS = DIR_MAIN + "/styles/qss" + "/"
 
 
-@register_node(dict_OP_NODES.get("OP_NODE_ADD"), CALC_NODES)
+#@register_node(dict_OP_NODES.get("OP_NODE_ADD"), CALC_NODES)
 class CalcNode_Add(CalcNode):
     icon = DIR_ICONS + "add_b.png"
     op_code = dict_OP_NODES.get("OP_NODE_ADD")
@@ -23,7 +23,7 @@ class CalcNode_Add(CalcNode):
         return input1 + input2
 
 
-@register_node(dict_OP_NODES.get("OP_NODE_SUB"), CALC_NODES)
+#@register_node(dict_OP_NODES.get("OP_NODE_SUB"), CALC_NODES)
 class CalcNode_Sub(CalcNode):
     icon = DIR_ICONS + "sub_b.png"
     op_code = dict_OP_NODES.get("OP_NODE_SUB")
@@ -48,8 +48,8 @@ class CalcNode_greater_than(CalcNode):
     content_label_objname = "calc_node_bg"
 
     def evalOperation(self, input1, input2):
-        input1 = int(input1)
-        input2 = int(input2)
+        input1 = float(input1)
+        input2 = float(input2)
         if (input1 > input2):
             return 1
         else:
@@ -69,6 +69,91 @@ class CalcNode_less_than(CalcNode):
         input1 = int(input1)
         input2 = int(input2)
         if (input1 < input2):
+            return 1
+        else:
+            return 0
+
+@register_node(dict_OP_NODES.get("OP_NODE_greater_or_equals"), CALC_NODES)
+class CalcNode_greater_or_equals_than(CalcNode):
+    icon = DIR_ICONS + "greater_or_equals.png"
+    op_code = dict_OP_NODES.get("OP_NODE_greater_or_equals")
+    op_title = "Больше или равно"
+    obj_title = "GT1"
+    content_label = ">="
+    content_label_objname = "calc_node_bg"
+
+    def evalOperation(self, input1, input2):
+        input1 = float(input1)
+        input2 = float(input2)
+        if (input1 >= input2):
+            return 1
+        else:
+            return 0
+
+@register_node(dict_OP_NODES.get("OP_NODE_less_or_equals"), CALC_NODES)
+class CalcNode_less_or_equals_than(CalcNode):
+    icon = DIR_ICONS + "less_or_equals.png"
+    op_code = dict_OP_NODES.get("OP_NODE_less_or_equals")
+    op_title = "Меньше или равно"
+    obj_title = "LT1"
+    content_label = "<="
+    content_label_objname = "calc_node_bg"
+
+    def evalOperation(self, input1, input2):
+        input1 = float(input1)
+        input2 = float(input2)
+        if (input1 <= input2):
+            return 1
+        else:
+            return 0
+
+@register_node(dict_OP_NODES.get("OP_NODE_equals"), CALC_NODES)
+class CalcNode_equals(CalcNode):
+    icon = DIR_ICONS + "equals.png"
+    op_code = dict_OP_NODES.get("OP_NODE_equals")
+    op_title = "Равно"
+    obj_title = "LT1"
+    content_label = "="
+    content_label_objname = "calc_node_bg"
+
+    def evalOperation(self, input1, input2):
+        if "Code:" in input1:
+            splited_row = str(input1).split("\n")
+            if len(splited_row) > 1:
+                val_code = splited_row[0].replace('Code:', '')
+                val_data = splited_row[1].replace('Content:b', '')
+                if str(input2) in val_data:
+                    return 1
+                elif str(input2) in val_code:
+                    return 1
+                else:
+                    return 0
+
+        #input1 = float(input1)
+        #input2 = float(input2)
+        if (input1 == input2):
+            return 1
+        else:
+            return 0
+
+@register_node(dict_OP_NODES.get("OP_NODE_not_equals"), CALC_NODES)
+class CalcNode_equals(CalcNode):
+    icon = DIR_ICONS + "not_equals.png"
+    op_code = dict_OP_NODES.get("OP_NODE_not_equals")
+    op_title = "Не равно"
+    obj_title = "LT1"
+    content_label = "!="
+    content_label_objname = "calc_node_bg"
+
+    def evalOperation(self, input1, input2):
+        if "Code:" in input1:
+            splited_row = str(input1).split("\n")
+            for row in splited_row:
+                input1 = row.replace('Code:', '')
+                break
+        #input1 = float(input1)
+        #input2 = float(input2)
+        if (input1 != input2):
             return 1
         else:
             return 0

@@ -18,13 +18,18 @@ class rectangle_inout(QtWidgets.QGraphicsRectItem):
 class Node(Serializable):
     icon = "."
 
-    def __init__(self, scene, title="Undefined Node", obj_title="Undefined", obj_port=None, obj_data=None, inputs=[], outputs=[]):
+    def __init__(self, scene, title="Undefined Node", obj_title="Undefined", obj_port=None, obj_data=None,
+                 inputs=[], outputs=[], inputs_names=[], outputs_names=[]):
         super().__init__()
         self._title = title
         self._obj_title = obj_title
         self.scene = scene
         self.obj_port = obj_port
         self.obj_data = obj_data
+        self.inputs = inputs
+        self.outputs = outputs
+        self.inputs_names = inputs_names
+        self.outputs_names = outputs_names
 
         self.initInnerClasses()
         self.initSettings()
@@ -34,7 +39,9 @@ class Node(Serializable):
         # Подключение модуля serial (pyserial)
         import serial
         try:
-            self.port = serial.Serial(port='COM3', baudrate=9600, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS)
+            #self.port = serial.Serial(port='COM3', baudrate=9600, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS)
+            self.port = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, stopbits=serial.STOPBITS_ONE,
+                                      bytesize=serial.EIGHTBITS)
             print(self.port)
         except:
             pass
@@ -51,6 +58,30 @@ class Node(Serializable):
         # dirty and evaluation
         self._is_dirty = False
         self._is_invalid = False
+
+    def serialConnect(self):
+        serlocations = ['/dev/ttyACM', '/dev/ttyACM0', '/dev/ttyACM1', '/dev/ttyACM2', '/dev/ttyACM3', '/dev/ttyACM4',
+                        '/dev/ttyACM5', '/dev/ttyUSB0', '/dev/ttyUSB1', '/dev/ttyUSB2', '/dev/ttyUSB3', '/dev/ttyUSB4',
+                        '/dev/ttyUSB5', '/dev/ttyUSB6', '/dev/ttyUSB7', '/dev/ttyUSB8', '/dev/ttyUSB9', '/dev/ttyUSB10',
+                        '/dev/ttyS0', '/dev/ttyS1', '/dev/ttyS2', 'com2', 'com3', 'com4', 'com5', 'com6', 'com7',
+                        'com8', 'com9', 'com10', 'com11', 'com12', 'com13', 'com14', 'com15', 'com16', 'com17', 'com18',
+                        'com19', 'com20', 'com21', 'com1', 'end']
+        for device in serlocations:
+            try:
+                import serial
+                ser = serial.Serial(
+                    port=device,
+                    baudrate=9600,
+                    parity=serial.PARITY_ODD,
+                    stopbits=serial.STOPBITS_TWO,
+                    bytesize=serial.SEVENBITS
+                )
+                print(device)
+                return ser
+            except:
+                x = 0
+            if device == 'end':
+                print ("No Device Found")
 
 
     def initInnerClasses(self):
@@ -189,6 +220,30 @@ class Node(Serializable):
                 new_x = left_corner_pos.x() - self.grNode.width
                 new_y = scene_position.y()
                 self.setPos(new_x, new_y)
+            # IOT
+            # Left corner
+            elif len(select_node.inputs) <= 0 and len(select_node.outputs) > 0:
+                # Знаем расположение левого края в программе
+                views = self.scene.grScene.views()
+                geometry_view = views[0].geometry()
+                point_left_corner = QPoint(geometry_view.x(), geometry_view.y())
+                left_corner_pos = views[0].mapToScene(point_left_corner)
+
+                new_x = left_corner_pos.x()
+                new_y = scene_position.y()
+                self.setPos(new_x, new_y)
+            # Right corner
+            elif len(select_node.inputs) > 0 and len(select_node.outputs) <= 0:
+                # Знаем расположение правого края в программе
+                views = self.scene.grScene.views()
+                geometry_view = views[0].geometry()
+                point_left_corner = QPoint(geometry_view.x() + geometry_view.width(),
+                                           geometry_view.y() + geometry_view.height())
+                left_corner_pos = views[0].mapToScene(point_left_corner)
+
+                new_x = left_corner_pos.x() - self.grNode.width
+                new_y = scene_position.y()
+                self.setPos(new_x, new_y)
         except Exception as ex:
             print(ex)
 
@@ -233,7 +288,183 @@ class Node(Serializable):
                 item.node.remove()
         self.scene.grScene.scene.history.storeHistory("Delete selected", setModified=True)
 
+    def change_data_node(self):
+        for sel_node in self.scene.grScene.selectedItems():
+            from windows.dialogs import change_node_data_window
+            # Обновляем значения входных параметров перед открытием диалога
+            sel_node.node.updateInParam()
+            node_window = change_node_data_window(item_node=sel_node)
+            new_data = node_window.exec_()
+            if new_data is not None and len(new_data) > 0:
+                if sel_node.node.inputs_names != new_data['inputs_names']:
+                    for sel_socket in sel_node.node.inputs:
+                        sel_index = sel_node.node.inputs.index(sel_socket)
+                        try:
+                            for sel_edge in sel_socket.edges:
+                                if sel_edge.start_socket.node != sel_node.node:
+                                    node_change = sel_edge.start_socket.node
+                                    new_param_val = new_data['inputs_names'][sel_index]
+                                    old_param_val = node_change.obj_title
+                                    # Меняем параметр объекта и обновляем на сцене графику
+                                    node_change.obj_title = new_param_val
+                                    if hasattr(node_change, 'obj_port') and node_change.obj_port is not None:
+                                        node_change.title(node_change.op_title, node_change.obj_title, node_change.obj_port)
+                                    else:
+                                        node_change.title(node_change.op_title, node_change.obj_title)
+
+                                    # Обновляем параметры в изменяемой ноде
+                                    for outputs_name in node_change.outputs_names:
+                                        param_index = node_change.outputs_names.index(outputs_name)
+                                        if outputs_name == old_param_val:
+                                            node_change.outputs_names[param_index] = new_param_val
+
+                                    # Обновляем в исходной ноде параметры
+                                    sel_node.node.inputs_names = new_data['inputs_names']
+                                    break
+                                elif sel_edge.end_socket.node != sel_node.node:
+                                    node_change = sel_edge.end_socket.node
+                                    new_param_val = new_data['inputs_names'][sel_index]
+                                    old_param_val = node_change.obj_title
+                                    # Меняем параметр объекта и обновляем на сцене графику
+                                    if new_data['inputs_names'][0] != node_change.obj_title:
+                                        node_change.obj_title = new_param_val
+                                        if hasattr(node_change, 'obj_port') and node_change.obj_port is not None:
+                                            node_change.title(node_change.op_title, node_change.obj_title,
+                                                              node_change.obj_port)
+                                        else:
+                                            node_change.title(node_change.op_title, node_change.obj_title)
+
+                                    # Обновляем параметры в изменяемой ноде
+                                    for outputs_name in node_change.outputs_names:
+                                        param_index = node_change.outputs_names.index(outputs_name)
+                                        if outputs_name == old_param_val:
+                                            node_change.outputs_names[param_index] = new_param_val
+
+                                    # Обновляем в исходной ноде параметры
+                                    sel_node.node.inputs_names = new_data['inputs_names']
+                                    break
+                        except Exception as ex:
+                            pass
+
+                # Если изменены выходные данные, то только для выбранного объекта, в других обновляем их параметры
+                if sel_node.node.outputs_names != new_data['outputs_names']:
+                    for sel_socket in sel_node.node.outputs:
+                        sel_index = sel_node.node.outputs.index(sel_socket)
+                        try:
+                            for sel_edge in sel_socket.edges:
+                                if sel_edge.start_socket.node != sel_node.node:
+                                    node_change = sel_edge.end_socket.node
+                                    new_param_val = new_data['outputs_names'][sel_index]
+                                    old_param_val = sel_node.node.obj_title
+
+                                    # Обновляем параметры в изменяемой ноде
+                                    for inputs_name in node_change.inputs_names:
+                                        param_index = node_change.inputs_names.index(inputs_name)
+                                        if inputs_name == old_param_val:
+                                            node_change.inputs_names[param_index] = new_param_val
+
+                                    # Обновляем в исходной ноде параметры
+                                    sel_node.node.outputs_names = new_data['outputs_names']
+
+                                    # Обновляем графику у данного объекта, в зависимости от 1 параметра outputs_names
+                                    # Меняем параметр объекта и обновляем на сцене графику
+                                    if new_data['outputs_names'][0] != sel_node.node.obj_title:
+                                        sel_node.node.obj_title = new_param_val
+                                        if hasattr(sel_node.node, 'obj_port') and sel_node.node.obj_port is not None:
+                                            sel_node.node.title(sel_node.node.op_title, sel_node.node.obj_title,
+                                                                sel_node.node.obj_port)
+                                        else:
+                                            sel_node.node.title(sel_node.node.op_title, sel_node.node.obj_title)
+
+                                    break
+                                elif sel_edge.end_socket.node != sel_node.node:
+                                    node_change = sel_edge.end_socket.node
+                                    new_param_val = new_data['outputs_names'][sel_index]
+                                    old_param_val = sel_node.node.obj_title
+
+                                    # Обновляем параметры в изменяемой ноде
+                                    for inputs_name in node_change.inputs_names:
+                                        param_index = node_change.inputs_names.index(inputs_name)
+                                        if inputs_name == old_param_val:
+                                            node_change.inputs_names[param_index] = new_param_val
+
+                                    # Обновляем в исходной ноде параметры
+                                    sel_node.node.outputs_names = new_data['outputs_names']
+
+                                    # Обновляем графику у данного объекта, в зависимости от 1 параметра outputs_names
+                                    # Меняем параметр объекта и обновляем на сцене графику
+                                    if new_data['outputs_names'][0] != sel_node.node.obj_title:
+                                        sel_node.node.obj_title = new_param_val
+                                        if hasattr(sel_node.node, 'obj_port') and sel_node.node.obj_port is not None:
+                                            sel_node.node.title(sel_node.node.op_title, sel_node.node.obj_title,
+                                                                sel_node.node.obj_port)
+                                        else:
+                                            sel_node.node.title(sel_node.node.op_title, sel_node.node.obj_title)
+
+                                    break
+                        except Exception as ex:
+                            pass
+            break
+        self.scene.grScene.scene.history.storeHistory("change data selected", setModified=True)
+
     def onMarkedDirty(self): pass
+
+    def createInParam(self):
+        try:
+            if hasattr(self, 'inputs_names') and \
+                    (self.inputs_names is None or len(self.inputs_names) <= 0):
+                new_list = []
+                for sel_socket in self.inputs:
+                    try:
+                        for sel_edge in sel_socket.edges:
+                            in_node = None
+                            if sel_edge.start_socket.node != self:
+                                in_node = sel_edge.start_socket.node
+                            elif sel_edge.end_socket.node != self:
+                                in_node = sel_edge.end_socket.node
+                            if in_node is not None and hasattr(self, 'obj_title') \
+                                    and self.obj_title is not None:
+                                new_list.append(in_node.obj_title)
+                    except:
+                        pass
+                self.inputs_names = new_list
+        except Exception as ex:
+            print(ex)
+
+    def createOutParam(self):
+        try:
+            if hasattr(self, 'outputs_names') and (self.outputs_names is None or len(self.outputs_names) <= 0):
+                new_list = []
+                for _index in range(len(self.outputs)):
+                    try:
+                        if hasattr(self, 'obj_title') and self.obj_title is not None:
+                            new_list.append(self.obj_title)
+                    except:
+                        pass
+                self.outputs_names = new_list
+        except Exception as ex:
+            print(ex)
+
+    def updateInParam(self):
+        try:
+            if hasattr(self, 'inputs_names'):
+                new_list = []
+                for sel_socket in self.inputs:
+                    try:
+                        for sel_edge in sel_socket.edges:
+                            in_node = None
+                            if sel_edge.start_socket.node != self:
+                                in_node = sel_edge.start_socket.node
+                            elif sel_edge.end_socket.node != self:
+                                in_node = sel_edge.end_socket.node
+                            if in_node is not None and hasattr(self, 'obj_title') \
+                                    and self.obj_title is not None:
+                                new_list.append(in_node.obj_title)
+                    except:
+                        pass
+                self.inputs_names = new_list
+        except Exception as ex:
+            print(ex)
 
     def markChildrenDirty(self, new_value=True):
         for other_node in self.getChildrenNodes():
@@ -393,8 +624,8 @@ class Node(Serializable):
 
             data['inputs'].sort(key=lambda socket: socket['index'] + socket['position'] * 10000)
             data['outputs'].sort(key=lambda socket: socket['index'] + socket['position'] * 10000)
-            num_inputs = len( data['inputs'] )
-            num_outputs = len( data['outputs'] )
+            num_inputs = len(data['inputs'])
+            num_outputs = len(data['outputs'])
 
             self.inputs = []
             for socket_data in data['inputs']:
@@ -420,6 +651,9 @@ class Node(Serializable):
 
             if 'icon' in data and data["icon"] is not None:
                 self.icon = data["icon"]
+
+            # Если нет имён у входных/выходных параметров, то добавляем их из параметра obj_title
+            self.createOutParam()
 
             return self
         except Exception as e: dumpException(e)

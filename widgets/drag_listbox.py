@@ -40,6 +40,7 @@ class QDMDragListbox(QListWidget):
         super().__init__(parent)
         self.checkable = checkable
         self.SOME_NODES = SOME_NODES
+        self.clear()
         self.initUI()
 
     def initUI(self):

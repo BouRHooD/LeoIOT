@@ -1,7 +1,8 @@
 import os
 import sys
 
-from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5 import QtGui, QtCore, QtWidgets, Qt
+from PyQt5.QtWidgets import QPushButton, QTextEdit, QLabel
 
 DIR_MAIN = os.path.dirname(os.path.abspath(str(sys.modules['__main__'].__file__))).replace("\\", "/")
 DIR_ICONS = DIR_MAIN + "/styles/icons" + "/"
@@ -10,7 +11,7 @@ DIR_CSS = DIR_MAIN + "/styles/qss" + "/"
 
 class PopUpDialogThingWorxCountInOut(QtWidgets.QDialog):
 
-    def __init__(self, outputs_enable=True, outputs_value=2):
+    def __init__(self, outputs_enable=True, outputs_value=2, inputs_value=2):
         super(PopUpDialogThingWorxCountInOut, self).__init__()
 
         self.returnVal = None
@@ -46,7 +47,7 @@ class PopUpDialogThingWorxCountInOut(QtWidgets.QDialog):
 
         self.text_inputs = QtWidgets.QSpinBox(self)
         self.text_inputs.setObjectName("text_inputs")
-        self.text_inputs.setValue(2)
+        self.text_inputs.setValue(inputs_value)
         self.text_inputs.setAlignment(QtCore.Qt.AlignCenter)
         self.gridLayout.addWidget(self.text_inputs, 2, 0, 1, 1)
 
@@ -95,6 +96,105 @@ class PopUpDialogThingWorxCountInOut(QtWidgets.QDialog):
 
     def exec_(self):
         super(PopUpDialogThingWorxCountInOut, self).exec_()
+        return self.returnVal
+
+
+class change_node_data_window(QtWidgets.QDialog):
+
+    def __init__(self, item_node=None):
+        super(change_node_data_window, self).__init__()
+
+        self.item_node = item_node
+        self.list_textEdit_IN = []
+        self.list_textEdit_OUT = []
+        self.returnVal = {}
+        self.icon = QtGui.QIcon()
+
+        self.setObjectName("self")
+        self.resize(500, 150)
+        self.setMinimumSize(QtCore.QSize(500, 150))
+        self.setMaximumSize(QtCore.QSize(500, 150))
+        self.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
+
+        self.icon.addPixmap(QtGui.QPixmap(DIR_ICONS + "ask-icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.setWindowIcon(self.icon)
+
+        self.gridLayout = QtWidgets.QGridLayout(self)
+        self.gridLayout.setObjectName("gridLayout")
+
+        # 0 0 1 2 - row column rowSpan columnSpan
+        # "Настройки виджетов для вещей"
+        self.obj_textEdit_label = QLabel("Названия параметров\n(для отправки на платформы IoT)")
+        self.obj_textEdit_label.setAlignment(QtCore.Qt.AlignCenter)
+
+        inputs_count = len(self.item_node.node.inputs)
+        outputs_count = len(self.item_node.node.outputs)
+
+        for _local_index in range(inputs_count):
+            val_in_param = ""
+            try:
+                val_in_param = self.item_node.node.inputs_names[_local_index]
+            except:
+                pass
+            obj_textEdit_IN = QTextEdit(self)
+            obj_textEdit_IN.setFixedSize(100, 26)
+            obj_textEdit_IN.setFixedHeight(26)
+            obj_textEdit_IN.setText(val_in_param)
+            self.list_textEdit_IN.append(obj_textEdit_IN)
+
+        for _local_index in range(outputs_count):
+            val_out_param = ""
+            try:
+                val_out_param = self.item_node.node.outputs_names[_local_index]
+            except:
+                pass
+            obj_textEdit_OUT = QTextEdit(self)
+            obj_textEdit_OUT.setFixedSize(100, 26)
+            obj_textEdit_OUT.setText(val_out_param)
+            self.list_textEdit_OUT.append(obj_textEdit_OUT)
+
+        self.saveButton = QPushButton('Сохранить найстройки', clicked=self.save_settings)
+
+        add_count = 0
+        if inputs_count > 0:
+            add_count = inputs_count
+        elif outputs_count > 0:
+            add_count = outputs_count
+
+        self.gridLayout.setSpacing(2 + add_count)
+
+        # saveButton ячейка начинается с нулевой строки нулевой колонки, и занимает 1 строку и 1 колонку.
+        self.gridLayout.addWidget(self.obj_textEdit_label, 0, 1, 1, 1)
+        select_index_in, select_index_out = 1, 1
+        for textEdit in self.list_textEdit_IN:
+            self.gridLayout.addWidget(textEdit, select_index_in, 0, 1, 1)
+            select_index_in += 1
+        for textEdit in self.list_textEdit_OUT:
+            self.gridLayout.addWidget(textEdit, select_index_out, 2, 1, 1)
+            select_index_out += 1
+        self.gridLayout.addWidget(self.saveButton, 2 + add_count, 1, 1, 1)
+
+    def save_settings(self):
+        self.returnVal['inputs_names'] = []
+        self.returnVal['outputs_names'] = []
+
+        try:
+            list_text_in = []
+            for text_in in self.list_textEdit_IN:
+                list_text_in.append(text_in.toPlainText())
+            self.returnVal['inputs_names'] = list_text_in
+
+            list_text_out = []
+            for text_out in self.list_textEdit_OUT:
+                list_text_out.append(text_out.toPlainText())
+            self.returnVal['outputs_names'] = list_text_out
+        except:
+            pass
+
+        self.accept()
+
+    def exec_(self):
+        super(change_node_data_window, self).exec_()
         return self.returnVal
 
 

@@ -105,6 +105,8 @@ class IOTSubWindow(NodeEditorWidget):
                 # Проверяем есть ли уже экземпляр класса для ноды (для нод умных вещей)
                 select_node = some_nodes.get(op_code)
                 node_type = str(type(select_node))
+                nodes_list = []
+                node = None
                 if "CalcNode_some_thing" in node_type:
                     node = select_node
                     self.scene.addNode(node)
@@ -114,13 +116,17 @@ class IOTSubWindow(NodeEditorWidget):
                     # Если объект является thingworx, то спрашиваем у пользователя настройки для создания объекта
                     self.return_value = None
                     node_lbl = select_node.content_label_objname
-                    if node_lbl in ['node_thingworx_obj', "node_fogwing_iiot_obj"]:
+                    if node_lbl in iot_list:
                         if 'node_thingworx_obj' in node_lbl:
                             dialog_thingworx = PopUpDialogThingWorxCountInOut()
                             self.return_value = dialog_thingworx.exec_()
 
                         if 'node_fogwing_iiot_obj' in node_lbl:
                             dialog_thingworx = PopUpDialogThingWorxCountInOut(outputs_enable=False, outputs_value=1)
+                            self.return_value = dialog_thingworx.exec_()
+
+                        if 'node_blynkio_obj' in node_lbl:
+                            dialog_thingworx = PopUpDialogThingWorxCountInOut(inputs_value=1, outputs_value=1)
                             self.return_value = dialog_thingworx.exec_()
 
                         if self.return_value is None:
@@ -130,21 +136,28 @@ class IOTSubWindow(NodeEditorWidget):
                     if self.return_value is not None:
                         array_inputs = self.return_value['inputs']
                         array_outputs = self.return_value['outputs']
-                        node = get_class_from_opcode(op_code, some_nodes)(scene=self.scene,
-                                                                          inputs=array_inputs,
-                                                                          outputs=array_outputs)
+                        get_nodes = get_class_from_opcode(op_code, some_nodes)
+                        node_in = get_nodes(scene=self.scene, inputs=array_inputs)
+                        node_out = get_nodes(scene=self.scene, outputs=array_outputs)
+                        nodes_list.append(node_in)
+                        nodes_list.append(node_out)
                     # Создаём экземпляр ноды на сцене для остальных объектов
                     else:
                         node = get_class_from_opcode(op_code, some_nodes)(scene=self.scene)
 
                 # Ставим объект в нужную позицию на сцене и после прикрепляем его к краям, если это необходимо
-                node.setPos(scene_position.x(), scene_position.y())
-                node.change_pos()
+                if node is not None:
+                    node.setPos(scene_position.x(), scene_position.y())
+                    node.change_pos()
+
+                for node_list in nodes_list:
+                    node_list.setPos(scene_position.x(), scene_position.y())
+                    node_list.change_pos()
 
                 # Если объект является thingworx, то спрашиваем у пользователя настройки для создания объекта
                 self.return_value = None
                 node_lbl = select_node.content_label_objname
-                if node_lbl in ['node_thingworx_obj', "node_fogwing_iiot_obj"]:
+                if node_lbl in iot_list:
                     if 'node_thingworx_obj' in node_lbl:
                         dialog_thingworx = PopUpDialogThingWorx(server_name="PP-2107252209MI.portal.ptc.io",
                                                                 thing_name="Home_IoT", service_name="InOut",
@@ -161,10 +174,29 @@ class IOTSubWindow(NodeEditorWidget):
                                                                 appkey_data='b5d4a44eeaa24a5aac02a1c30ec911d2')
                         self.return_value = dialog_thingworx.exec_()
 
+                    if 'node_blynkio_obj' in node_lbl:
+                        dialog_thingworx = PopUpDialogThingWorx(server_name_exp_lbl="blynk.cloud",
+                                                                thing_name_lbl="TEMPLATE_ID",
+                                                                service_name_lbl="DEVICE_NAME",
+                                                                appkey_data_lbl="AUTHTOKEN",
+                                                                server_name="blynk.cloud",
+                                                                thing_name="TMPL-hp3GKo5",
+                                                                service_name="Quickstart Template",
+                                                                appkey_data='HzHQ3uHcffoAW7cJzsv1gcddFnmzTMEP')
+                        self.return_value = dialog_thingworx.exec_()
+
                     if self.return_value is None:
                         pass
                     else:
-                        node.obj_data = self.return_value
+                        if node is not None:
+                            node.obj_data = self.return_value
+                            node.createInParam()
+                            node.createOutParam()
+
+                        for sel_node in nodes_list:
+                            sel_node.obj_data = self.return_value
+                            sel_node.createInParam()
+                            sel_node.createOutParam()
 
                 """
                 views = self.scene.grScene.views()
@@ -230,6 +262,7 @@ class IOTSubWindow(NodeEditorWidget):
         # markInvalidAct = context_menu.addAction("Mark Invalid")
         # unmarkInvalidAct = context_menu.addAction("Unmark Invalid")
         # evalAct = context_menu.addAction("Eval")
+        changeNodeAct = context_menu.addAction("Изменить ноду")
         deleteNodeAct = context_menu.addAction("Удалить ноду")
         action = context_menu.exec_(self.mapToGlobal(event.pos()))
 
@@ -247,6 +280,7 @@ class IOTSubWindow(NodeEditorWidget):
         if DEBUG_CONTEXT: print("got item:", selected)
 
         if selected and action == deleteNodeAct: selected.delete_node()
+        if selected and action == changeNodeAct: selected.change_data_node()
         # if selected and action == markDirtyAct: selected.markDirty()
         # if selected and action == markDirtyDescendantsAct: selected.markDescendantsDirty()
         # if selected and action == markInvalidAct: selected.markInvalid()
