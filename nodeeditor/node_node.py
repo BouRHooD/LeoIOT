@@ -17,6 +17,7 @@ class rectangle_inout(QtWidgets.QGraphicsRectItem):
 
 class Node(Serializable):
     icon = "."
+    last_val = None
 
     def __init__(self, scene, title="Undefined Node", obj_title="Undefined", obj_port=None, obj_data=None,
                  inputs=[], outputs=[], inputs_names=[], outputs_names=[]):
@@ -37,14 +38,14 @@ class Node(Serializable):
         self.title(title, obj_title, obj_port)
 
         # Подключение модуля serial (pyserial)
-        import serial
-        try:
-            #self.port = serial.Serial(port='COM3', baudrate=9600, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS)
-            self.port = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, stopbits=serial.STOPBITS_ONE,
-                                      bytesize=serial.EIGHTBITS)
-            print(self.port)
-        except:
-            pass
+        #import serial
+        #try:
+        #    self.port = serial.Serial(port='COM3', baudrate=9600, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS)
+        #    #self.port = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, stopbits=serial.STOPBITS_ONE,
+        #    #                          bytesize=serial.EIGHTBITS)
+        #    print(self.port)
+        #except Exception as ex:
+        #    print(ex)
 
         if scene is not None:
             self.scene.addNode(self)
@@ -502,13 +503,13 @@ class Node(Serializable):
         for node in self.getChildrenNodes():
             node.eval()
 
-            if (node.value == 1):
-                self.portWriteON()
+            #if (node.value == 1):
+            #    self.portWriteON()
 
-            if (node.value == 0):
-                self.portWriteOFF()
+            #if (node.value == 0):
+            #    self.portWriteOFF()
 
-    def portWriteOFF(self):
+    def portWriteOFF(self, inPort):
         # Команда привязки для устройства-датчика на 0-й канал
         # Подробнее по ссылке http://lnnk.in/@noo
         package = bytearray([171, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 173, 172])
@@ -519,7 +520,7 @@ class Node(Serializable):
         package[15] = byteSumm % 256
 
         try:
-            c = self.port.write(package)
+            c = inPort.write(package)
 
             print("Ответ от mtrf:")
             # Выводим шапку таблицы columnNames, форматируя вывод
@@ -527,10 +528,10 @@ class Node(Serializable):
                            'ID3', 'CRC', 'SP']
             for column in columnNames:
                 print(column.ljust(4, ' '), end=' ')
-        except:
-            pass
+        except Exception as ex:
+            print(ex)
 
-    def portWriteON(self):
+    def portWriteON(self, inPort):
         # Команда привязки для устройства-датчика на 0-й канал
         # Подробнее по ссылке http://lnnk.in/@noo
         package = bytearray([171, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 175, 172])
@@ -541,7 +542,7 @@ class Node(Serializable):
         package[15] = byteSumm % 256
 
         try:
-            c = self.port.write(package)
+            c = inPort.write(package)
 
             print("Ответ от mtrf:")
             # Выводим шапку таблицы columnNames, форматируя вывод

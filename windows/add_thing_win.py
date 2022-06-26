@@ -156,6 +156,10 @@ class thing_window(QMainWindow):
                                 if low_port_name.__contains__("analog"):
                                     icon = QIcon(self.DIR_ICONS + 'a.png')
                                 self.combo_port.addItem(icon, port_name + "_" + port_num)
+
+                    if self.jsonDataSettingPorts is not None:
+                        self.combo_port.addItem(QIcon(self.DIR_ICONS + 'mtrf64.png'), "MTRF-64")
+                        self.combo_port.addItem(QIcon(self.DIR_ICONS + 'zigbee.png'), "ZIGBEE")
                 except:
                     pass
 

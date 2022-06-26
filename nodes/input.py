@@ -10,7 +10,7 @@ DIR_CSS = DIR_MAIN + "/styles/qss" + "/"
 
 class CalcInputContent(QDMNodeContentWidget):
     def initUI(self):
-        self.edit = QLineEdit("1", self)
+        self.edit = QLineEdit("0", self)
         self.edit.setAlignment(Qt.AlignRight)
         self.edit.setObjectName(self.node.content_label_objname)
 

@@ -399,11 +399,6 @@ class MainIOTWindow(NodeEditorWindow):
                 list_dict_data = self.getDictDataForGPIO()
                 print(list_dict_data)
                 try:
-                    import RPi.GPIO as GPIO
-                    # GPIO.BCM - будет использоваться нумерация GPIO
-                    # GPIO.BOARD - будет использоваться нумерация пинов P1-26
-                    GPIO.setmode(GPIO.BCM)
-
                     for dict_data in list_dict_data:
                         try:
                             print(dict_data)
@@ -411,26 +406,88 @@ class MainIOTWindow(NodeEditorWindow):
                             select_type_node = dict_data["select_type_node"]
                             select_type_port = dict_data["select_type_port"]
                             select_num_port = dict_data["select_num_port"]
-                            if select_num_port is None: continue
 
-                            select_num_port = int(select_num_port)
+                            if 'digital' in select_type_port:
+                                if select_num_port is None: continue
+                                import RPi.GPIO as GPIO
+                                # GPIO.BCM - будет использоваться нумерация GPIO
+                                # GPIO.BOARD - будет использоваться нумерация пинов P1-26
+                                GPIO.setmode(GPIO.BCM)
 
-                            if select_type_node == "input" and select_type_port == "digital":
-                                pass
-                                # Конфигурируем GPIO как вход
-                                GPIO.setup(select_num_port, GPIO.IN)
-                                # Считываем сигнал с GPIO 8 в переменную pin_signal_input
-                                pin_signal_input = GPIO.input(select_num_port)
-                                print(f'pin_signal_input: {pin_signal_input}')
-                                select_node.setText(pin_signal_input)
-                                select_node.evalImplementation()
-                            elif select_type_node == "output" and select_type_port == "digital":
-                                # Конфигурируем GPIO как выход
-                                GPIO.setup(select_num_port, GPIO.OUT)
-                                node_select_value = select_node.evalImplementation()
-                                value_bool = bool(node_select_value)
-                                # Выводим на GPIO 7 логическую "1" (3.3 V) или логический "0"
-                                GPIO.output(select_num_port, value_bool)
+                                select_num_port = int(select_num_port)
+
+                                if select_type_node == "input":
+                                    # Конфигурируем GPIO как вход
+                                    GPIO.setup(select_num_port, GPIO.IN)
+                                    # Считываем сигнал с GPIO 8 в переменную pin_signal_input
+                                    pin_signal_input = GPIO.input(select_num_port)
+                                    print(f'pin_signal_input: {pin_signal_input}')
+                                    select_node.setText(pin_signal_input)
+                                    select_node.evalImplementation()
+                                elif select_type_node == "output":
+                                    # Конфигурируем GPIO как выход
+                                    GPIO.setup(select_num_port, GPIO.OUT)
+                                    node_select_value = select_node.evalImplementation()
+                                    value_bool = bool(node_select_value)
+                                    # Выводим на GPIO 7 логическую "1" (3.3 V) или логический "0"
+                                    GPIO.output(select_num_port, value_bool)
+
+                            if 'analog' in select_type_port:
+                                if select_num_port is None: continue
+                                # ---------------------------------------------------------------
+                                # sudo apt-get update
+                                # sudo apt-get install build-essential python-dev python-smbus git
+                                # cd ~
+                                # git clone https://github.com/adafruit/Adafruit_Python_ADS1x15.git
+                                # cd Adafruit_Python_ADS1x15
+                                # sudo python setup.py install
+
+                                # ---------------------------------------------------------------
+                                # sudo apt-get update
+                                # sudo apt-get install build-essential python-dev python-smbus python-pip
+                                # sudo pip install adafruit-ads1x15
+
+                                # ---------------------------------------------------------------
+                                # sudo python simpletest.py
+
+                                # Create an ADS1115 ADC (16-bit) instance.
+                                import Adafruit_ADS1x15
+                                adc = Adafruit_ADS1x15.ADS1115()
+
+                                # Note you can change the I2C address from its default (0x48), and/or the I2C
+                                # bus by passing in these optional parameters:
+                                # adc = Adafruit_ADS1x15.ADS1015(address=0x49, bus=1)
+
+                                if select_type_node == "input":
+                                    # Read the specified ADC channel using the previously set gain value.
+                                    read_value = adc.read_adc(select_num_port, gain="2/3")
+                                    print(f'pin_signal_input: {read_value}')
+                                    select_node.setText(read_value)
+                                    select_node.evalImplementation()
+
+                            if 'mtrf-64' in select_type_port:
+                                self.port = None
+                                import serial
+                                try:
+                                    self.port = serial.Serial(port='COM3', baudrate=9600, stopbits=serial.STOPBITS_ONE,
+                                                              bytesize=serial.EIGHTBITS)
+                                    # self.port = serial.Serial(port='/dev/ttyUSB0', baudrate=9600, stopbits=serial.STOPBITS_ONE,
+                                    #                          bytesize=serial.EIGHTBITS)
+                                    print(self.port)
+                                except Exception as ex:
+                                    print(ex)
+
+                                if self.port is not None:
+                                    if select_type_node == "input":
+                                        pass
+                                    elif select_type_node == "output":
+                                        if (select_node.value == 1) and select_node.value != select_node.last_val:
+                                            select_node.last_val = select_node.value
+                                            select_node.portWriteON(self.port)
+                                        elif (select_node.value == 0) and select_node.value != select_node.last_val:
+                                            select_node.last_val = select_node.value
+                                            select_node.portWriteOFF(self.port)
+
                         except Exception as ex:
                             dumpException(ex)
                 except Exception as ex:
@@ -638,10 +695,27 @@ class MainIOTWindow(NodeEditorWindow):
                                 select_type_port = "digital"
                                 select_num_port = node_port_lower.replace("gpio_digital_", "")
 
+                            if 'analog' in node_port_lower:
+                                if 'calc_node_some_thing_in' in node_lbl:
+                                    select_type_node = 'input'
+                                if 'calc_node_some_thing_out' in node_lbl:
+                                    select_type_node = 'output'
+                                select_type_port = "analog"
+                                select_num_port = node_port_lower.replace("gpio_analog_", "")
+
+                            if 'mtrf-64' in node_port_lower:
+                                if 'calc_node_some_thing_in' in node_lbl:
+                                    select_type_node = 'input'
+                                if 'calc_node_some_thing_out' in node_lbl:
+                                    select_type_node = 'output'
+                                select_type_port = "mtrf-64"
+                                select_num_port = node_port_lower.replace("mtrf-64", "")
+
                             list_dict_data.append({'node': scene_node,
                                                    'select_type_node': select_type_node,
                                                    'select_type_port': select_type_port,
                                                    'select_num_port': select_num_port})
+
                 break
 
         return list_dict_data
